@@ -24,8 +24,31 @@ func main() {
 
 ### Funktionen
 
-Implementierte Funktionen sind `log.Println()`, `log.Print()`, `log.Printf()` und `log.PrettyPrint()`
+Implementierte Funktionen sind `log.Println()`, `log.Print()`, `log.Printf()`, `log.PrettyPrint()` sowie
+`log.SetLogLevel()`, `log.SetDefaultLevel()` und `log.ShowColorsInLogs()`
 
+Die Print-Funktionen sind in denn Beispielen unten zu sehen.
+
+Folgend aber kurz die Konfigurationsfunktionen erläutert:
+#### `log.SetLogLevel(logLevel)`
+`log.SetLogLevel()` definiert bis zu welchem Log Level Log-Nachrichten ausgegeben werden sollen.
+
+Default: log.NONE
+
+Siehe Examples unten.
+
+#### `log.SetDefaultLevel(logLevel)`
+`log.SetDefaultLevel()` definiert welches Log-Level benutzt wird wenn kein Log-Level angegeben wurde.
+
+Default: log.INFO
+
+#### `log.ShowColorsInLogs(bool)`
+`log.ShowColorsInLogs()` definiert ob die Farbigen Log-Level Labels auch mit ausgegeben werden sollen wenn das Log nicht im Terminal ausgegeben wird sondern in ein File umgeleitet wird.
+Dies funktioniert auch wenn die Log-Nachrichten im Terminal ausgegeben UND in ein File gespeichert werden (Docker Logs z.B.)
+
+Default: false
+
+Nicht ausreichend getestet, kann also zu Fehlern führen.
 
 ## Examples
 ```go
