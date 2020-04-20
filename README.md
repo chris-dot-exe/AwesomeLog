@@ -101,7 +101,7 @@ Ausgaben:
 ![cmdline output](https://intern.t3debug.de/git/sg-go-libs/AwesomeLog/-/wikis/uploads/c0ec95041f009a18f7d4e045a763cad3/Auswahl_305.png)
 
 
-###Examples with Loglevel
+### Examples with Loglevel
 So kommen wir jetzt zum interessanten Teil!
 
 ```go
@@ -154,5 +154,5 @@ reduziert sich die Ausgabe auf:
 ![cmdline output](https://intern.t3debug.de/git/sg-go-libs/AwesomeLog/-/wikis/uploads/35e1f2ce6e8f688d7fc56b53d3e7e680/Auswahl_307.png)
 
 
-##Notes
+## Notes
 PrettyPrint kann nur Felder anzeigen die auch exportiert werden!
