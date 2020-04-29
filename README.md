@@ -33,6 +33,9 @@ Folgend aber kurz die Konfigurationsfunktionen erläutert:
 #### `log.SetLogLevel(logLevel)`
 `log.SetLogLevel()` definiert bis zu welchem Log Level Log-Nachrichten ausgegeben werden sollen.
 
+#### `log.SetLogLevelByString(string)`
+`log.SetLogLevelByString()` ist identisch mit `SetLogLevel()` nur das hier das Level als String (z.B. aus einem Config File) angegeben wird.
+
 Default: log.NONE
 
 Siehe Examples unten.
