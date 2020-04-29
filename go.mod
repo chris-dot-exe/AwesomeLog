@@ -1,4 +1,4 @@
-module intern.t3debug.de/git/sg-go-libs/AwesomeLog
+module github.com/chris-dot-exe/AwsomeLog
 
 go 1.14
 
