@@ -1,9 +1,6 @@
 # AwesomeLog
 
-AwesomeLog ist eine inplace Erweiterung des Standard log packages.
-
-AwesomeLog bietet die Möglichkeit verschiedene Log Level zu definieren.
-Sowie eine Funktion die Objekte schöner darstellt.
+AwesomeLog ist eine inplace Erweiterung des Standard log packages und bietet die Möglichkeit verschiedene Log Level zu definieren.
 
 ### Quick start
 Das Module wird mit dem Alias log importiert und ersetzt so die Standard Log Funktion.
