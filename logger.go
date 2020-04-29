@@ -48,6 +48,15 @@ func SetLogLevel(lvl LogLevel) {
 	LOG_LEVEL = lvl
 }
 
+func SetLogLevelByString(lvlStr string) {
+	val, ok := level[lvlStr]
+	if !ok {
+		log2.Fatalf("LogLevel '%s' is not supported!\n", lvlStr)
+		return
+	}
+	LOG_LEVEL = val
+}
+
 func SetDefaultLevel(lvl LogLevel)  {
 	DEFAULT_LEVEL = lvl
 }
