@@ -121,7 +121,8 @@ func main() {
 
 Ausgaben:
 
-![cmdline output](https://intern.t3debug.de/git/sg-go-libs/AwesomeLog/-/wikis/uploads/c0ec95041f009a18f7d4e045a763cad3/Auswahl_305.png)
+![cmdline output](https://user-images.githubusercontent.com/49272981/80649110-b3297e80-8a71-11ea-9779-d359da872d75.png)
+
 
 
 ### Examples with Loglevel
@@ -144,7 +145,7 @@ func main() {
 ```
 Ausgaben:
 
-![cmdline output](https://intern.t3debug.de/git/sg-go-libs/AwesomeLog/-/wikis/uploads/99606d30fc88e6fe045fbfdee7255ec6/Auswahl_306.png)
+![cmdline output](https://user-images.githubusercontent.com/49272981/80649108-b290e800-8a71-11ea-8463-595e9de9f171.png)
 
 ### Nur bestimmte Loglevel anzeigen:
 Will man nun, nach dem testen, die Logausgabe reduzieren kann man das Loglevel entsprechend setzen:
@@ -174,7 +175,7 @@ func main() {
 }
 ```
 reduziert sich die Ausgabe auf:
-![cmdline output](https://intern.t3debug.de/git/sg-go-libs/AwesomeLog/-/wikis/uploads/35e1f2ce6e8f688d7fc56b53d3e7e680/Auswahl_307.png)
+![cmdline output](https://user-images.githubusercontent.com/49272981/80649104-b1f85180-8a71-11ea-9c72-d98ed825a6b4.png)
 
 
 ## Notes
