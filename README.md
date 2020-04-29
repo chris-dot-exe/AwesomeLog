@@ -1,7 +1,6 @@
 # AwesomeLog
 
-AwesomeLog ist eine inplace Erweiterung des Standard log packages von @chris.exe
-welches bei der Entwicklung anderer Projekte entstand. 
+AwesomeLog ist eine inplace Erweiterung des Standard log packages.
 
 AwesomeLog bietet die Möglichkeit verschiedene Log Level zu definieren.
 Sowie eine Funktion die Objekte schöner darstellt.
