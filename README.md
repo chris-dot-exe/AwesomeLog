@@ -1,10 +1,6 @@
 # AwesomeLog
 
-AwesomeLog ist eine inplace Erweiterung des Standard log packages von @chris.exe
-welches bei der Entwicklung anderer Projekte entstand. 
-
-AwesomeLog bietet die Möglichkeit verschiedene Log Level zu definieren.
-Sowie eine Funktion die Objekte schöner darstellt.
+AwesomeLog ist eine inplace Erweiterung des Standard log packages und bietet die Möglichkeit verschiedene Log Level zu definieren.
 
 ### Quick start
 Das Module wird mit dem Alias log importiert und ersetzt so die Standard Log Funktion.
@@ -14,7 +10,7 @@ Mun eine Log Ausgabe zu erhalten muss nun lediglich definiert werden bis zu welc
 ```go
 package main
 import (
-    log "intern.t3debug.de/git/sg-go-libs/AwesomeLog"
+    log "github.com/chris-dot-exe/AwsomeLog"
 )
 
 func main() {
@@ -25,13 +21,16 @@ func main() {
 ### Funktionen
 
 Implementierte Funktionen sind `log.Println()`, `log.Print()`, `log.Printf()`, `log.PrettyPrint()` sowie
-`log.SetLogLevel()`, `log.SetDefaultLevel()` und `log.ShowColorsInLogs()`
+`log.SetLogLevel()`, `log.SetLogLevelByString()`, `log.SetDefaultLevel()` und `log.ShowColorsInLogs()`
 
 Die Print-Funktionen sind in denn Beispielen unten zu sehen.
 
 Folgend aber kurz die Konfigurationsfunktionen erläutert:
 #### `log.SetLogLevel(logLevel)`
 `log.SetLogLevel()` definiert bis zu welchem Log Level Log-Nachrichten ausgegeben werden sollen.
+
+#### `log.SetLogLevelByString(string)`
+`log.SetLogLevelByString()` ist identisch mit `SetLogLevel()` nur das hier das Level als String (z.B. aus einem Config File) angegeben wird.
 
 Default: log.NONE
 
@@ -54,7 +53,7 @@ Nicht ausreichend getestet, kann also zu Fehlern führen.
 ```go
 package main
 import (
-    log "intern.t3debug.de/git/sg-go-libs/AwesomeLog"
+    log "github.com/chris-dot-exe/AwsomeLog"
 )
 
 func main() {
@@ -67,7 +66,7 @@ func main() {
 ```go
 package main
 import (
-    log "intern.t3debug.de/git/sg-go-libs/AwesomeLog"
+    log "github.com/chris-dot-exe/AwsomeLog"
 )
 
 func main() {
@@ -80,7 +79,7 @@ func main() {
 ```go
 package main
 import (
-    log "intern.t3debug.de/git/sg-go-libs/AwesomeLog"
+    log "github.com/chris-dot-exe/AwsomeLog"
 )
 
 func main() {
@@ -93,7 +92,7 @@ func main() {
 ```go
 package main
 import (
-    log "intern.t3debug.de/git/sg-go-libs/AwesomeLog"
+    log "github.com/chris-dot-exe/AwsomeLog"
 )
 
 type foo struct {
@@ -131,7 +130,7 @@ So kommen wir jetzt zum interessanten Teil!
 ```go
 package main
 import (
-    log "intern.t3debug.de/git/sg-go-libs/AwesomeLog"
+    log "github.com/chris-dot-exe/AwsomeLog"
 )
 
 func main() {
@@ -162,7 +161,7 @@ Wird das LogLevel also z.B. wie folgt auf Info gesetzt
 ```go
 package main
 import (
-    log "intern.t3debug.de/git/sg-go-libs/AwesomeLog"
+    log "github.com/chris-dot-exe/AwsomeLog"
 )
 
 func main() {
