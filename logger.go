@@ -197,6 +197,33 @@ func Printf(paramsOriginal ...interface{}) {
 
 }
 
+func Fatal(params ...interface{}) {
+	log2.Fatal(params...)
+}
+
+func Fatalf(format string, params ...interface{}) {
+	log2.Fatalf(format, params...)
+}
+
+func Fatalln(params ...interface{}) {
+	log2.Fatalln(params...)
+}
+
+
+func Panic(params ...interface{}) {
+	log2.Panic(params...)
+}
+
+func Panicf(format string, params ...interface{}) {
+	log2.Panicf(format, params...)
+}
+
+func Panicln(params ...interface{}) {
+	log2.Panicln(params...)
+}
+
+
+
 func showMe(level LogLevel) bool {
 	if LOG_LEVEL == NONE {
 		return false
