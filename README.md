@@ -1,11 +1,16 @@
 # AwesomeLog
 
-AwesomeLog ist eine inplace Erweiterung des Standard log packages und bietet die Möglichkeit verschiedene Log Level zu definieren.
+AwsomeLog is a inplace replacement of the default log package with some extended features. 
+
+Mainly **AwsomeLog** provides functionality to define log levels as well as a **PrettyPrint** function to niceley and readable print out objects. 
+It also shows the filename and line of code on logs  with a level of **DEBUG** or **VERBOSE**
+
 
 ### Quick start
-Das Module wird mit dem Alias log importiert und ersetzt so die Standard Log Funktion.
+Import the module with the alias `log` as shown in the example below.
 
-Mun eine Log Ausgabe zu erhalten muss nun lediglich definiert werden bis zu welchem Loglevel Logs ausgegeben werden (Default: None).
+To get log output you **MUST** define what log levels should be printed out. 
+**IMPORTANT** The default log level is `NONE`.
 
 ```go
 package main
@@ -18,36 +23,60 @@ func main() {
 }
 ``` 
 
-### Funktionen
+### Functions
 
-Implementierte Funktionen sind `log.Println()`, `log.Print()`, `log.Printf()`, `log.PrettyPrint()` sowie
-`log.SetLogLevel()`, `log.SetLogLevelByString()`, `log.SetDefaultLevel()` und `log.ShowColorsInLogs()`
+The following functions are provided from this package:
+```go
+log.Print()
+log.Println()
+log.Printf()
+log.PrettyPrint()
+```
 
-Die Print-Funktionen sind in denn Beispielen unten zu sehen.
+Functions without additional functionality. Panic and Fatal directly calls the original log functions:
+```go
+log.Fatal()
+log.Fatalf()
+log.Fatalln()
+log.Panic()
+log.Panicf()
+log.Panicln()
+```
 
-Folgend aber kurz die Konfigurationsfunktionen erläutert:
+And AwesomeLog setting functions:
+```go
+log.SetLogLevel()
+log.SetLogLEvelByString()
+log.SetDefaultLevel()
+log.ShowColorsInLogs()
+```
+
+### Setup Functions:
 #### `log.SetLogLevel(logLevel)`
-`log.SetLogLevel()` definiert bis zu welchem Log Level Log-Nachrichten ausgegeben werden sollen.
+`log.SetLogLevel()` defines to which level messages should be logged. 
 
 #### `log.SetLogLevelByString(string)`
-`log.SetLogLevelByString()` ist identisch mit `SetLogLevel()` nur das hier das Level als String (z.B. aus einem Config File) angegeben wird.
+`log.SetLogLevelByString()` same as `SetLogLevel()` but you can pass the log level as a string to the function (e.g. from a configuration file)
 
-Default: log.NONE
+**Default is `log.NONE` / `NONE`** 
 
-Siehe Examples unten.
+
+See examples below.
 
 #### `log.SetDefaultLevel(logLevel)`
-`log.SetDefaultLevel()` definiert welches Log-Level benutzt wird wenn kein Log-Level angegeben wurde.
+`log.SetDefaultLevel()` defines the default log level if a print function is called without a log level as first argument. 
 
 Default: log.INFO
 
 #### `log.ShowColorsInLogs(bool)`
-`log.ShowColorsInLogs()` definiert ob die Farbigen Log-Level Labels auch mit ausgegeben werden sollen wenn das Log nicht im Terminal ausgegeben wird sondern in ein File umgeleitet wird.
-Dies funktioniert auch wenn die Log-Nachrichten im Terminal ausgegeben UND in ein File gespeichert werden (Docker Logs z.B.)
+`log.ShowColorsInLogs()` defines if the colored log-level labels should be shown in logs which are redirected to a file. 
+If this is set to false and the outout is visible in the terminal AND is saved to a log file (e.g. docker logs) it will be shown with colors on the terminal output but without in the docker log.  
 
-Default: false
+**Default: false**
 
-Nicht ausreichend getestet, kann also zu Fehlern führen.
+This function is not fully tested. 
+
+
 
 ## Examples
 ```go
@@ -118,14 +147,14 @@ func main() {
 }
 ```
 
-Ausgaben:
+Output:
 
-![cmdline output](https://user-images.githubusercontent.com/49272981/80649110-b3297e80-8a71-11ea-9779-d359da872d75.png)
+<img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/80649110-b3297e80-8a71-11ea-9779-d359da872d75.png" width="500px">
 
 
 
 ### Examples with Loglevel
-So kommen wir jetzt zum interessanten Teil!
+Now the interesting part:
 
 ```go
 package main
@@ -142,13 +171,11 @@ func main() {
     log.Println(log.WARN, "Foobar Warning")
 }
 ```
-Ausgaben:
+Output:
 
-![cmdline output](https://user-images.githubusercontent.com/49272981/80649108-b290e800-8a71-11ea-8463-595e9de9f171.png)
-
-### Nur bestimmte Loglevel anzeigen:
-Will man nun, nach dem testen, die Logausgabe reduzieren kann man das Loglevel entsprechend setzen:
-Die Priorität ist wie folgt (höchste zu niedrigster):
+<img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/80649108-b290e800-8a71-11ea-8463-595e9de9f171.png" width="500px">
+### Show only messages to a specific level:
+The priority of the log levels is as following (highest to lowest):
 ```
 NONE
 WARN
@@ -157,7 +184,7 @@ DEBUG
 VERBOSE
 ```
 
-Wird das LogLevel also z.B. wie folgt auf Info gesetzt
+If you set the log-level to info:
 ```go
 package main
 import (
@@ -173,9 +200,9 @@ func main() {
     log.Println(log.WARN, "Foobar Warning")
 }
 ```
-reduziert sich die Ausgabe auf:
-![cmdline output](https://user-images.githubusercontent.com/49272981/80649104-b1f85180-8a71-11ea-9c72-d98ed825a6b4.png)
+The output is reduced to the following messages:
 
+<img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/80649104-b1f85180-8a71-11ea-9c72-d98ed825a6b4.png" width="500px">
 
 ## Notes
-PrettyPrint kann nur Felder anzeigen die auch exportiert werden!
+PrettyPrint can only display fields which are exported!
