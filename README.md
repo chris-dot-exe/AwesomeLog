@@ -174,8 +174,10 @@ func main() {
 Output:
 
 <img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/80649108-b290e800-8a71-11ea-8463-595e9de9f171.png" width="500px">
+
 ### Show only messages to a specific level:
 The priority of the log levels is as following (highest to lowest):
+
 ```
 NONE
 WARN
