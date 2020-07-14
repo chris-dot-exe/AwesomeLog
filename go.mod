@@ -1,4 +1,4 @@
-module github.com/chris-dot-exe/AwsomeLog
+module github.com/chris-dot-exe/AwesomeLog
 
 go 1.14
 

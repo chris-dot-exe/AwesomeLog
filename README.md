@@ -1,8 +1,8 @@
 # AwesomeLog
 
-AwsomeLog is a inplace replacement of the default log package with some extended features. 
+AwesomeLog is a inplace replacement of the default log package with some extended features. 
 
-Mainly **AwsomeLog** provides functionality to define log levels as well as a **PrettyPrint** function to niceley and readable print out objects. 
+Mainly **AwesomeLog** provides functionality to define log levels as well as a **PrettyPrint** function to niceley and readable print out objects. 
 It also shows the filename and line of code on logs  with a level of **DEBUG** or **VERBOSE**
 
 
@@ -15,7 +15,7 @@ To get log output you **MUST** define what log levels should be printed out.
 ```go
 package main
 import (
-    log "github.com/chris-dot-exe/AwsomeLog"
+    log "github.com/chris-dot-exe/AwesomeLog"
 )
 
 func main() {
@@ -82,7 +82,7 @@ This function is not fully tested.
 ```go
 package main
 import (
-    log "github.com/chris-dot-exe/AwsomeLog"
+    log "github.com/chris-dot-exe/AwesomeLog"
 )
 
 func main() {
@@ -95,7 +95,7 @@ func main() {
 ```go
 package main
 import (
-    log "github.com/chris-dot-exe/AwsomeLog"
+    log "github.com/chris-dot-exe/AwesomeLog"
 )
 
 func main() {
@@ -108,7 +108,7 @@ func main() {
 ```go
 package main
 import (
-    log "github.com/chris-dot-exe/AwsomeLog"
+    log "github.com/chris-dot-exe/AwesomeLog"
 )
 
 func main() {
@@ -121,7 +121,7 @@ func main() {
 ```go
 package main
 import (
-    log "github.com/chris-dot-exe/AwsomeLog"
+    log "github.com/chris-dot-exe/AwesomeLog"
 )
 
 type foo struct {
@@ -159,7 +159,7 @@ Now the interesting part:
 ```go
 package main
 import (
-    log "github.com/chris-dot-exe/AwsomeLog"
+    log "github.com/chris-dot-exe/AwesomeLog"
 )
 
 func main() {
@@ -190,7 +190,7 @@ If you set the log-level to info:
 ```go
 package main
 import (
-    log "github.com/chris-dot-exe/AwsomeLog"
+    log "github.com/chris-dot-exe/AwesomeLog"
 )
 
 func main() {
