@@ -23,7 +23,7 @@ const (
 	VERBOSE LogLevel = 20
 )
 
-var LOG_LEVEL = NONE
+var LOG_LEVEL = VERBOSE
 var DEFAULT_LEVEL = INFO
 var COLORS_IN_LOGS = false
 
