@@ -9,9 +9,6 @@ It also shows the filename and line of code on logs  with a level of **DEBUG** o
 ### Quick start
 Import the module with the alias `log` as shown in the example below.
 
-To get log output you **MUST** define what log levels should be printed out. 
-**IMPORTANT** The default log level is `NONE`.
-
 ```go
 package main
 import (
@@ -58,7 +55,7 @@ log.ShowColorsInLogs()
 #### `log.SetLogLevelByString(string)`
 `log.SetLogLevelByString()` same as `SetLogLevel()` but you can pass the log level as a string to the function (e.g. from a configuration file)
 
-**Default is `log.NONE` / `NONE`** 
+**Default is `log.VERBOSE` / `VERBOSE`** 
 
 
 See examples below.
