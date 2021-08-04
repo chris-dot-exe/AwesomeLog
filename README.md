@@ -46,6 +46,7 @@ log.SetLogLevel()
 log.SetLogLEvelByString()
 log.SetDefaultLevel()
 log.ShowColorsInLogs()
+log.ShowCaller()
 ```
 
 ### Setup Functions:
@@ -63,7 +64,7 @@ See examples below.
 #### `log.SetDefaultLevel(logLevel)`
 `log.SetDefaultLevel()` defines the default log level if a print function is called without a log level as first argument. 
 
-Default: log.INFO
+**Default: log.INFO**
 
 #### `log.ShowColorsInLogs(bool)`
 `log.ShowColorsInLogs()` defines if the colored log-level labels should be shown in logs which are redirected to a file. 
@@ -73,7 +74,10 @@ If this is set to false and the outout is visible in the terminal AND is saved t
 
 This function is not fully tested. 
 
+#### `log.ShowCaller(bool)`
+`log.ShowCaller()` defines if the caller (function name) should be shown on all log levels.
 
+**Default: false** (Shows the caller only on log level DEBUG and VERBOSE)
 
 ## Examples
 ```go
