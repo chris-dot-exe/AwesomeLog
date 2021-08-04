@@ -81,7 +81,7 @@ func Println(params ...interface{}) {
 	n := runtime.Callers(2, fpcs)
 
 	_, name, row, err := getCaller(n, fpcs)
-	if err != nil || level < 10  {
+	if err != nil || (level < 10 && !ALWAYS_SHOW_CALLER)  {
 		log2.Println(fmt.Sprintf(getLevelColor(level)+"[%s]" + ANSI_RESET +" %s", getLevelName(level), fmt.Sprint(params...)))
 		return
 	}
@@ -130,7 +130,8 @@ func PrettyPrint( params ...interface{}) {
 	_, name, row, err := getCaller(n, fpcs)
 
 	b, err := json.MarshalIndent(params, "", "  ")
-	if (err != nil || level < 10) && !ALWAYS_SHOW_CALLER  {
+
+	if err != nil || (level < 10 && !ALWAYS_SHOW_CALLER)  {
 		if COLORS_IN_LOGS || isTerminal() {
 			log2.Println(fmt.Sprintf(getLevelColor(level)+"[%s]"+ANSI_RESET+"\n%s", getLevelName(level), string(b)))
 			return
@@ -158,7 +159,7 @@ func Print(params ...interface{}) {
 	n := runtime.Callers(2, fpcs)
 
 	_, name, row, err := getCaller(n, fpcs)
-	if (err != nil || level < 10) && !ALWAYS_SHOW_CALLER  {
+	if err != nil || (level < 10 && !ALWAYS_SHOW_CALLER)  {
 		if COLORS_IN_LOGS || isTerminal() {
 			log2.Print(fmt.Sprintf(getLevelColor(level)+"[%s]" + ANSI_RESET +" %s", getLevelName(level), fmt.Sprint(params...)))
 			return
@@ -185,7 +186,7 @@ func Printf(paramsOriginal ...interface{}) {
 	n := runtime.Callers(2, fpcs)
 
 	_, name, row, err := getCaller(n, fpcs)
-	if (err != nil || level < 10) && !ALWAYS_SHOW_CALLER  {
+	if err != nil || (level < 10 && !ALWAYS_SHOW_CALLER)  {
 		if COLORS_IN_LOGS || isTerminal() {
 			log2.Printf(fmt.Sprintf(getLevelColor(level)+"[%s]" + ANSI_RESET +" ", getLevelName(level)) + format, params...)
 			return
