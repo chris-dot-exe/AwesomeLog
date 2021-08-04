@@ -26,6 +26,7 @@ const (
 var LOG_LEVEL = VERBOSE
 var DEFAULT_LEVEL = INFO
 var COLORS_IN_LOGS = false
+var ALWAYS_SHOW_CALLER = false
 
 var level = map[string]LogLevel{
 	"NONE": NONE,
@@ -46,6 +47,10 @@ var lvlColor = map[LogLevel]string{
 
 func SetLogLevel(lvl LogLevel) {
 	LOG_LEVEL = lvl
+}
+
+func ShowCaller(show bool) {
+	ALWAYS_SHOW_CALLER = show
 }
 
 func SetLogLevelByString(lvlStr string) {
@@ -125,7 +130,7 @@ func PrettyPrint( params ...interface{}) {
 	_, name, row, err := getCaller(n, fpcs)
 
 	b, err := json.MarshalIndent(params, "", "  ")
-	if err != nil || level < 10 {
+	if (err != nil || level < 10) && !ALWAYS_SHOW_CALLER  {
 		if COLORS_IN_LOGS || isTerminal() {
 			log2.Println(fmt.Sprintf(getLevelColor(level)+"[%s]"+ANSI_RESET+"\n%s", getLevelName(level), string(b)))
 			return
@@ -153,7 +158,7 @@ func Print(params ...interface{}) {
 	n := runtime.Callers(2, fpcs)
 
 	_, name, row, err := getCaller(n, fpcs)
-	if err != nil || level < 10 {
+	if (err != nil || level < 10) && !ALWAYS_SHOW_CALLER  {
 		if COLORS_IN_LOGS || isTerminal() {
 			log2.Print(fmt.Sprintf(getLevelColor(level)+"[%s]" + ANSI_RESET +" %s", getLevelName(level), fmt.Sprint(params...)))
 			return
@@ -180,7 +185,7 @@ func Printf(paramsOriginal ...interface{}) {
 	n := runtime.Callers(2, fpcs)
 
 	_, name, row, err := getCaller(n, fpcs)
-	if err != nil || level < 10 {
+	if (err != nil || level < 10) && !ALWAYS_SHOW_CALLER  {
 		if COLORS_IN_LOGS || isTerminal() {
 			log2.Printf(fmt.Sprintf(getLevelColor(level)+"[%s]" + ANSI_RESET +" ", getLevelName(level)) + format, params...)
 			return
