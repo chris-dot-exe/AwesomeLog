@@ -172,3 +172,22 @@ func TestShowColorsInLogsInactive(t *testing.T) {
 		fmt.Print(output)
 	}
 }
+
+func TestSprintf(t *testing.T) {
+	SetLogLevel(DEBUG)
+	ShowColors(false)
+	ShowTimestamp(false)
+	ShowCaller(false)
+
+	expected := "[DEBUG] test 42, 0.1\n"
+	output := Sprintf(DEBUG, "test %d, %.1f\n", 42, 0.1)
+
+	if expected != output {
+		t.Error("output is not as expected")
+
+		fmt.Println("Expected: ")
+		fmt.Print(expected)
+		fmt.Println("Got: ")
+		fmt.Print(output)
+	}
+}

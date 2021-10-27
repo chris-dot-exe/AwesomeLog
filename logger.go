@@ -189,7 +189,7 @@ func Sprint(params ...interface{}) string {
 
 func Sprintf(paramsOriginal ...interface{}) string {
 	level, format, params := getLogLevel(true, paramsOriginal...)
-	return sprint(level, fmt.Sprintf(format, params))
+	return sprint(level, fmt.Sprintf(format, params...))
 }
 
 func SprettyPrint(params ...interface{}) string {
