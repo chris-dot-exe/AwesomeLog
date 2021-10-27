@@ -164,7 +164,7 @@ func Print(params ...interface{}) {
 
 func Printf(paramsOriginal ...interface{}) {
 	level, format, params := getLogLevel(true, paramsOriginal...)
-	print(level, fmt.Sprintf(format, params))
+	print(level, fmt.Sprintf(format, params...))
 }
 
 func PrettyPrint(params ...interface{}) {

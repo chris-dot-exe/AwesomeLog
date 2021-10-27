@@ -182,6 +182,8 @@ func TestSprintf(t *testing.T) {
 	expected := "[DEBUG] test 42, 0.1\n"
 	output := Sprintf(DEBUG, "test %d, %.1f\n", 42, 0.1)
 
+	Printf(DEBUG, "test %d, %.1f\n", 42, 0.1)
+
 	if expected != output {
 		t.Error("output is not as expected")
 
