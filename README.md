@@ -1,7 +1,7 @@
 AwesomeLog
 =========
 [![Go Reference](https://pkg.go.dev/badge/github.com/chris-dot-exe/AwesomeLog.svg)](https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog)
-![Last Release Version](https://img.shields.io/github/v/release/chris-dot-exe/AwesomeLog)
+![Last Release Version](https://img.shields.io/github/v/release/chris-dot-exe/AwesomeLog?include_prereleases)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/chris-dot-exe/AwesomeLog/master)
 [![License](https://img.shields.io/github/license/chris-dot-exe/AwesomeLog)](https://github.com/chris-dot-exe/AwesomeLog/blob/master/LICENSE)
 
@@ -13,7 +13,7 @@ It also adds the option to show details of the _caller_ like file path, function
 Since version v0.11.0 AwesomeLog also provides the functionality to add custom handlers for each LogLevel.
 
 ### Documentation
-https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog
+https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog@v0.11.0-rc
 
 ### Quick start
 The simplest way to use AwesomeLog is to just replace the standard library log with AwesomeLog:
