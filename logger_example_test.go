@@ -80,8 +80,8 @@ func ExampleSetLevelConfig() {
 	lvlConfig := DefaultLevelConfig()
 
 	lvlConfig.Debug.ShowLineNumber = false
-	lvlConfig.Debug.ShowLineNumber = true
-	lvlConfig.Debug.ShowLineNumber = false
+	lvlConfig.Debug.ShowFunctionName = true
+	lvlConfig.Debug.ShowFilePath = false
 
 	SetLevelConfig(lvlConfig)
 }
