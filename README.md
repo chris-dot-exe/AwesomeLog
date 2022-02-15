@@ -10,10 +10,10 @@ AwesomeLog is a fully compatible drop-in replacement for the standard library lo
 AwesomeLog let you define log levels for each logged messages as well as a **PrettyPrint** function to print out objects in a pretty readable format.
 It also adds the option to show details of the _caller_ like file path, function name and line number.
 
-Since version v0.11.0 AwesomeLog also provides the functionality to add custom handlers for each LogLevel.
+AwesomeLog now also provides the functionality to add custom handlers for each LogLevel.
 
 ### Documentation
-https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog@v0.11.0-rc
+[Documentation](https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog@v0.11.0-rc#section-documentation)
 
 ### Quick start
 The simplest way to use AwesomeLog is to just replace the standard library log with AwesomeLog:
@@ -183,7 +183,7 @@ func main() {
 ```
 
 ### Custom Handler
-Since version 0.11.0 it is possible to add custom handler for each LogLevel.<br>
+It is possible to add custom handler for each LogLevel.<br>
 The example below shows how a custom handler for GlitchTip/Sentry can be defined: 
 ```go
 package main
