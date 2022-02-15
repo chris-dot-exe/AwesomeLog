@@ -172,11 +172,9 @@ import (
 func main() {
 	cfg := log.DefaultLevelConfig()
 
-	cfg.Debug = LevelConfig{
-		ShowLineNumber:   false,
-		ShowFunctionName: true,
-		ShowFilePath:     false,
-	}
+    cfg.Debug.ShowLineNumber = false
+    cfg.Debug.ShowLineNumber = true
+    cfg.Debug.ShowLineNumber = false
 
 	log.SetLevelConfig(cfg)
 }
