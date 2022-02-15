@@ -78,5 +78,10 @@ func ExamplePrintf() {
 
 func ExampleSetLevelConfig() {
 	lvlConfig := DefaultLevelConfig()
+
+	lvlConfig.Debug.ShowLineNumber = false
+	lvlConfig.Debug.ShowLineNumber = true
+	lvlConfig.Debug.ShowLineNumber = false
+
 	SetLevelConfig(lvlConfig)
 }

@@ -173,8 +173,8 @@ func main() {
 	cfg := log.DefaultLevelConfig()
 
     cfg.Debug.ShowLineNumber = false
-    cfg.Debug.ShowLineNumber = true
-    cfg.Debug.ShowLineNumber = false
+    cfg.Debug.ShowFunctionName = true
+    cfg.Debug.ShowFilePath = false
 
 	log.SetLevelConfig(cfg)
 }
