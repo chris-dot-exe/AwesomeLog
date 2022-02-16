@@ -13,7 +13,7 @@ It also adds the option to show details of the _caller_ like file path, function
 AwesomeLog now also provides the functionality to add custom handlers for each LogLevel.
 
 ### Documentation
-[Documentation](https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog@v0.11.0-rc#section-documentation)
+[Documentation](https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog@v1.0.0-rc#section-documentation)
 
 ### Quick start
 The simplest way to use AwesomeLog is to just replace the standard library log with AwesomeLog:
