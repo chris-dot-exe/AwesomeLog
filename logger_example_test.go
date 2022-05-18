@@ -1,5 +1,13 @@
 package log
 
+type Foo struct {
+	Foo    string
+	Bar    string
+	Foobar struct {
+		Meeps []string
+	}
+}
+
 func ExampleSetDefaultLevel() {
 	SetDefaultLevel(INFO)
 }
@@ -13,7 +21,7 @@ func ExampleSetLogLevelByString() {
 }
 
 func ExamplePrettyPrint() {
-	bar := foo{
+	bar := Foo{
 		Foo: "Test",
 		Bar: "Test",
 		Foobar: struct {
