@@ -249,7 +249,7 @@ func buildMessage(level LogLevel, params ...interface{}) Message {
 	caller := Caller{}
 
 	fpcs := make([]uintptr, 1)
-	n := runtime.Callers(4, fpcs)
+	n := runtime.Callers(5, fpcs)
 	relpath, name, row, err := getCaller(n, fpcs)
 	if err == nil {
 		caller.Path = relpath
