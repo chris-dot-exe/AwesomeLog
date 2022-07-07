@@ -1,5 +1,7 @@
 package log
 
+import "time"
+
 type LogLevel uint
 
 // String returns the LogLevel name as string
@@ -27,6 +29,7 @@ type Caller struct {
 // Message is the object which is passed to every handler function.
 // Message contains the LogLevel, the Caller object and the message
 type Message struct {
+	Time    time.Time
 	Level   LogLevel
 	Caller  Caller
 	Message string
@@ -75,6 +78,8 @@ var colorsInLogs = false
 var showColors = true
 var config *Config
 var showTimestamp = true
+var timeFormat = "2006/01/02 15:04:05"
+var maxDepthOfCallerPath = 0
 
 var level = map[string]LogLevel{
 	"NONE":    NONE,

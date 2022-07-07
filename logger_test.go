@@ -3,6 +3,9 @@ package log
 import (
 	"fmt"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type foo struct {
@@ -53,7 +56,7 @@ func TestSetLogLevel(t *testing.T) {
 	SetLevelConfig(DefaultLevelConfig())
 
 	expexted := ANSI_RED_BACKGROUND + ANSI_WHITE + "[DEBUG]" + ANSI_RESET +
-		"[logger_test.go:logs:18] DEBUG Println\n" +
+		"[logger_test.go:logs:21] DEBUG Println\n" +
 		ANSI_YELLOW_BACKGROUND + ANSI_BLACK + "[WARN]" + ANSI_RESET +
 		" WARN Println\n" +
 		ANSI_BLUE_BACKGROUND + ANSI_WHITE + "[INFO]" + ANSI_RESET +
@@ -80,7 +83,7 @@ func TestSetLogLevelByString(t *testing.T) {
 	SetLevelConfig(DefaultLevelConfig())
 
 	expected := ANSI_RED_BACKGROUND + ANSI_WHITE + "[DEBUG]" + ANSI_RESET +
-		"[logger_test.go:logs:18] DEBUG Println\n" +
+		"[logger_test.go:logs:21] DEBUG Println\n" +
 		ANSI_YELLOW_BACKGROUND + ANSI_BLACK + "[WARN]" + ANSI_RESET +
 		" WARN Println\n" +
 		ANSI_BLUE_BACKGROUND + ANSI_WHITE + "[INFO]" + ANSI_RESET +
@@ -197,4 +200,27 @@ func TestSprintf(t *testing.T) {
 		fmt.Println("Got: ")
 		fmt.Print(output)
 	}
+}
+
+func TestLogWithCustomTimeFormat(t *testing.T) {
+	SetLogLevel(DEBUG)
+	ShowCaller(false)
+	ShowTimestamp(true)
+
+	format := "2006/01/02 15:04:05.000000"
+	now := time.Now()
+	SetTimeFormat(format)
+
+	expected := fmt.Sprintf("%s [DEBUG] Hello, World!", now.Format(format))
+
+	msg := Message{
+		Time:    now,
+		Level:   DEBUG,
+		Caller:  Caller{},
+		Message: "Hello, World!",
+	}
+
+	result := stringify(msg)
+
+	assert.Equal(t, expected, result)
 }

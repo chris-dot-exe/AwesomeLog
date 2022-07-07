@@ -84,6 +84,12 @@ func ExamplePrintf() {
 	// Output: 2022/02/15 23:18:02 [DEBUG][main.go:main:47] Hello world!
 }
 
+func ExampleSetTimeFormat() {
+	SetTimeFormat("2006/01/02 15:04:05.000000")
+	Printf(DEBUG, "Hello %s!\n", "world")
+	// Output 2022/02/15 23:18:02.278461 [DEBUG] Hello world!
+}
+
 func ExampleSetLevelConfig() {
 	lvlConfig := DefaultLevelConfig()
 

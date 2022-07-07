@@ -6,14 +6,20 @@ import (
 	"fmt"
 	log2 "log"
 	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/fatih/structs"
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+func init() {
+	config = DefaultLevelConfig()
+}
 
 // SetLogLevel defines to which LogLevel log messages should be shown.
 //
@@ -77,6 +83,11 @@ func ShowTimestamp(show bool) {
 	showTimestamp = show
 }
 
+// SetCallerMaxDepth set the max depth of the callers file path
+func SetCallerMaxDepth(depth int) {
+	maxDepthOfCallerPath = depth
+}
+
 // DefaultLevelConfig return the default level config for AwesomeLog
 func DefaultLevelConfig() *Config {
 	cfg := &Config{
@@ -111,6 +122,11 @@ func DefaultLevelConfig() *Config {
 // SetLevelConfig set the config for AwesomeLog
 func SetLevelConfig(cfg *Config) {
 	config = cfg
+}
+
+// SetTimeFormat set the timeformat for log messages
+func SetTimeFormat(format string) {
+	timeFormat = format
 }
 
 // Println logs a message at the defined LogLevel a newline is appended
@@ -221,15 +237,20 @@ func stringify(message Message) string {
 	prefix := ""
 	caller := ""
 
+	if showTimestamp {
+		prefix = fmt.Sprintf("%s ", message.Time.Format(timeFormat))
+	}
+
 	if showColors && (colorsInLogs || isTerminal()) {
-		prefix = fmt.Sprintf(message.Level.Color()+"[%s]"+ANSI_RESET, message.Level.String())
+		prefix += fmt.Sprintf(message.Level.Color()+"[%s]"+ANSI_RESET, message.Level.String())
 	} else {
-		prefix = fmt.Sprintf("[%s]", message.Level.String())
+		prefix += fmt.Sprintf("[%s]", message.Level.String())
 	}
 
 	if cfg.ShowFilePath || cfg.ShowFunctionName || cfg.ShowLineNumber {
 		caller += "["
 		if cfg.ShowFilePath {
+
 			caller += fmt.Sprintf("%s:", message.Caller.Path)
 		}
 		if cfg.ShowFunctionName {
@@ -246,11 +267,26 @@ func stringify(message Message) string {
 
 // buildMessage builds the Message object used by all log handlers
 func buildMessage(level LogLevel, params ...interface{}) Message {
+	now := time.Now()
 	caller := Caller{}
 
 	fpcs := make([]uintptr, 1)
 	n := runtime.Callers(5, fpcs)
 	relpath, name, row, err := getCaller(n, fpcs)
+
+	if maxDepthOfCallerPath > 0 {
+		pathElements := strings.Split(relpath, string(os.PathSeparator))
+		length := len(pathElements)
+
+		start := length - maxDepthOfCallerPath
+		if start < 0 {
+			start = 0
+		} else {
+			relpath = "..." + string(os.PathSeparator)
+		}
+		relpath += path.Join(pathElements[start:length]...)
+	}
+
 	if err == nil {
 		caller.Path = relpath
 		caller.FunctionName = name
@@ -258,6 +294,7 @@ func buildMessage(level LogLevel, params ...interface{}) Message {
 	}
 
 	msg := Message{
+		Time:    now,
 		Level:   level,
 		Caller:  caller,
 		Message: fmt.Sprint(params...),
@@ -290,11 +327,7 @@ func log(message Message) {
 
 	logMessage := stringify(message)
 
-	if !showTimestamp {
-		fmt.Print(logMessage)
-		return
-	}
-	log2.Print(logMessage)
+	fmt.Print(logMessage)
 }
 
 func println(level LogLevel, params ...interface{}) {
