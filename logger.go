@@ -15,69 +15,14 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-type LogLevel uint
-
-func (t *LogLevel) String() string {
-	for k, v := range level {
-		if *t == v {
-			return k
-		}
-	}
-	return "NONE"
-}
-
-func (t *LogLevel) Color() string {
-	return lvlColor[*t]
-}
-
-const (
-	NONE    LogLevel = 0
-	WARN    LogLevel = 1
-	INFO    LogLevel = 2
-	DEBUG   LogLevel = 10
-	VERBOSE LogLevel = 20
-)
-
-type LevelConfig struct {
-	ShowLineNumber   bool
-	ShowFunctionName bool
-	ShowFilePath     bool
-}
-
-type Config struct {
-	Verbose LevelConfig
-	Debug   LevelConfig
-	Warn    LevelConfig
-	Info    LevelConfig
-}
-
-var logLevel = VERBOSE
-var defaultLevel = INFO
-var colorsInLogs = false
-var showColors = true
-var config *Config
-var showTimestamp = true
-
-var level = map[string]LogLevel{
-	"NONE":    NONE,
-	"WARN":    WARN,
-	"INFO":    INFO,
-	"DEBUG":   DEBUG,
-	"VERBOSE": VERBOSE,
-}
-
-var lvlColor = map[LogLevel]string{
-	NONE:    "",
-	WARN:    ANSI_YELLOW_BACKGROUND + ANSI_BLACK,
-	INFO:    ANSI_BLUE_BACKGROUND + ANSI_WHITE,
-	DEBUG:   ANSI_RED_BACKGROUND + ANSI_WHITE,
-	VERBOSE: "",
-}
-
+// SetLogLevel defines to which LogLevel log messages should be shown.
+//
+// Default is VERBOSE
 func SetLogLevel(lvl LogLevel) {
 	logLevel = lvl
 }
 
+//ShowCaller defines if the caller (function name, line number, file path) should be shown on a global level.
 func ShowCaller(show bool) {
 	if config == nil {
 		config = DefaultLevelConfig()
@@ -96,10 +41,13 @@ func ShowCaller(show bool) {
 	}
 }
 
+// ShowColors Defines if colored level tags should be shown in the console log.
 func ShowColors(show bool) {
 	showColors = show
 }
 
+// SetLogLevelByString defines to which LogLevel log messages should be shown based on the given string e.g. SetLogLevelByString("WARN")
+// This is useful if the LogLevel is defined in a config file.
 func SetLogLevelByString(lvlStr string) {
 	lvlStr = strings.ToUpper(lvlStr)
 	val, ok := level[lvlStr]
@@ -110,63 +58,81 @@ func SetLogLevelByString(lvlStr string) {
 	logLevel = val
 }
 
+// SetDefaultLevel defines which LogLevel should be used if no LogLevel is provided.
+// This is useful if AwesomeLog is used as a drop-in replacement for the build-in log package in existing projects.
+//
+// Default is INFO
 func SetDefaultLevel(lvl LogLevel) {
 	defaultLevel = lvl
 }
 
+// ShowColorsInLogs if set to true colored level tags are always active.
+// By default, colored level tags are only active when the log is written to a terminal
 func ShowColorsInLogs(show bool) {
 	colorsInLogs = show
 }
 
+// ShowTimestamp defines if the log message should be prefixed with a timestamp
 func ShowTimestamp(show bool) {
 	showTimestamp = show
 }
 
+// DefaultLevelConfig return the default level config for AwesomeLog
 func DefaultLevelConfig() *Config {
 	cfg := &Config{
 		Verbose: LevelConfig{
 			ShowLineNumber:   true,
 			ShowFunctionName: true,
 			ShowFilePath:     true,
+			Handlers:         []Handler{log},
 		},
 		Debug: LevelConfig{
 			ShowLineNumber:   true,
 			ShowFunctionName: true,
 			ShowFilePath:     true,
+			Handlers:         []Handler{log},
 		},
 		Warn: LevelConfig{
 			ShowLineNumber:   false,
 			ShowFunctionName: false,
 			ShowFilePath:     false,
+			Handlers:         []Handler{log},
 		},
 		Info: LevelConfig{
 			ShowLineNumber:   false,
 			ShowFunctionName: false,
 			ShowFilePath:     false,
+			Handlers:         []Handler{log},
 		},
 	}
 	return cfg
 }
 
+// SetLevelConfig set the config for AwesomeLog
 func SetLevelConfig(cfg *Config) {
 	config = cfg
 }
 
+// Println logs a message at the defined LogLevel a newline is appended
 func Println(params ...interface{}) {
 	level, _, params := getLogLevel(false, params...)
 	println(level, params...)
 }
 
+// Print logs a message at the defined LogLevel
 func Print(params ...interface{}) {
 	level, _, params := getLogLevel(false, params...)
-	print(level, params)
+	logHandler(level, params...)
 }
 
+// Printf logs a message at the defined LogLevel and formats the message according to a format specifier
 func Printf(paramsOriginal ...interface{}) {
 	level, format, params := getLogLevel(true, paramsOriginal...)
-	print(level, fmt.Sprintf(format, params...))
+	logHandler(level, fmt.Sprintf(format, params...))
 }
 
+// PrettyPrint logs a message at the defined LogLevel formatted as JSON
+// Works only with exported fields.
 func PrettyPrint(params ...interface{}) {
 	level, _, params := getLogLevel(false, params...)
 	b, err := json.MarshalIndent(params, "", "  ")
@@ -202,36 +168,50 @@ func SprettyPrint(params ...interface{}) string {
 	return sprintln(level, string(b))
 }
 
+// Fatal calls log.Fatal of the built-in log package.
+// This function is provided only for drop-in compatibility
 func Fatal(params ...interface{}) {
 	log2.Fatal(params...)
 }
 
+// Fatalf calls log.Fatalf of the built-in log package.
+// This function is provided only for drop-in compatibility
 func Fatalf(format string, params ...interface{}) {
 	log2.Fatalf(format, params...)
 }
 
+// Fatalln calls log.Fatalln of the built-in log package.
+// This function is provided only for drop-in compatibility
 func Fatalln(params ...interface{}) {
 	log2.Fatalln(params...)
 }
 
+// Panic calls log.Panic of the built-in log package.
+// This function is provided only for drop-in compatibility
 func Panic(params ...interface{}) {
 	log2.Panic(params...)
 }
 
+// Panicf calls log.Panicf of the built-in log package.
+// This function is provided only for drop-in compatibility
 func Panicf(format string, params ...interface{}) {
 	log2.Panicf(format, params...)
 }
 
+// Panicln calls log.Panicln of the built-in log package.
+// This function is provided only for drop-in compatibility
 func Panicln(params ...interface{}) {
 	log2.Panicln(params...)
 }
 
-func stringify(level LogLevel, params ...interface{}) string {
+// stringify builds the log message string with colors and caller
+func stringify(message Message) string {
+
 	if config == nil {
 		config = DefaultLevelConfig()
 	}
 
-	lvlName := strings.Title(strings.ToLower(level.String()))
+	lvlName := strings.Title(strings.ToLower(message.Level.String()))
 
 	s := structs.New(config)
 	lvlField := s.Field(lvlName)
@@ -240,56 +220,94 @@ func stringify(level LogLevel, params ...interface{}) string {
 
 	prefix := ""
 	caller := ""
+
 	if showColors && (colorsInLogs || isTerminal()) {
-		prefix = fmt.Sprintf(level.Color()+"[%s]"+ANSI_RESET, level.String())
+		prefix = fmt.Sprintf(message.Level.Color()+"[%s]"+ANSI_RESET, message.Level.String())
 	} else {
-		prefix = fmt.Sprintf("[%s]", level.String())
+		prefix = fmt.Sprintf("[%s]", message.Level.String())
 	}
+
 	if cfg.ShowFilePath || cfg.ShowFunctionName || cfg.ShowLineNumber {
 		caller += "["
-		fpcs := make([]uintptr, 1)
-		n := runtime.Callers(5, fpcs)
-		relpath, name, row, err := getCaller(n, fpcs)
-		if err == nil {
-			if cfg.ShowFilePath {
-				caller += fmt.Sprintf("%s:", relpath)
-			}
-			if cfg.ShowFunctionName {
-				caller += fmt.Sprintf("%s", name)
-			}
-			if cfg.ShowLineNumber {
-				caller += fmt.Sprintf(":%d", row)
-			}
-
+		if cfg.ShowFilePath {
+			caller += fmt.Sprintf("%s:", message.Caller.Path)
 		}
+		if cfg.ShowFunctionName {
+			caller += fmt.Sprintf("%s", message.Caller.FunctionName)
+		}
+		if cfg.ShowLineNumber {
+			caller += fmt.Sprintf(":%d", message.Caller.LineNumber)
+		}
+
 		caller += "]"
 	}
-
-	return fmt.Sprintf("%s%s %s", prefix, caller, fmt.Sprint(params...))
+	return fmt.Sprintf("%s%s %s", prefix, caller, message.Message)
 }
 
-func print(level LogLevel, params ...interface{}) {
+// buildMessage builds the Message object used by all log handlers
+func buildMessage(level LogLevel, params ...interface{}) Message {
+	caller := Caller{}
+
+	fpcs := make([]uintptr, 1)
+	n := runtime.Callers(5, fpcs)
+	relpath, name, row, err := getCaller(n, fpcs)
+	if err == nil {
+		caller.Path = relpath
+		caller.FunctionName = name
+		caller.LineNumber = row
+	}
+
+	msg := Message{
+		Level:   level,
+		Caller:  caller,
+		Message: fmt.Sprint(params...),
+	}
+
+	return msg
+}
+
+// logHandler calls all defined handlers with the built Message object
+func logHandler(level LogLevel, params ...interface{}) {
 	if !showMe(level) {
 		return
 	}
-	if !showTimestamp {
-		fmt.Print(stringify(level, params...))
-		return
+
+	lvlName := strings.Title(strings.ToLower(level.String()))
+	s := structs.New(config)
+	lvlField := s.Field(lvlName)
+	cfg := lvlField.Value().(LevelConfig)
+
+	message := buildMessage(level, params...)
+
+	for _, handler := range cfg.Handlers {
+		handler(message)
 	}
 
-	log2.Print(stringify(level, params...))
+}
+
+// log is the internal log handler
+func log(message Message) {
+
+	logMessage := stringify(message)
+
+	if !showTimestamp {
+		fmt.Print(logMessage)
+		return
+	}
+	log2.Print(logMessage)
 }
 
 func println(level LogLevel, params ...interface{}) {
 	params = append(params, "\n")
-	print(level, params...)
+	logHandler(level, params...)
 }
 
 func sprint(level LogLevel, params ...interface{}) string {
 	if !showMe(level) {
 		return ""
 	}
-	return stringify(level, params...)
+	message := buildMessage(level, params...)
+	return stringify(message)
 }
 
 func sprintln(level LogLevel, params ...interface{}) string {

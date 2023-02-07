@@ -1,112 +1,37 @@
-# AwesomeLog
+AwesomeLog
+=========
+[![Go Reference](https://pkg.go.dev/badge/github.com/chris-dot-exe/AwesomeLog.svg)](https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog)
+![Last Release Version](https://img.shields.io/github/v/release/chris-dot-exe/AwesomeLog?include_prereleases)
+![Go Version](https://img.shields.io/github/go-mod/go-version/chris-dot-exe/AwesomeLog/master)
+[![License](https://img.shields.io/github/license/chris-dot-exe/AwesomeLog)](https://github.com/chris-dot-exe/AwesomeLog/blob/master/LICENSE)
 
-AwesomeLog is an inplace replacement of the default log package with some extended features. 
+AwesomeLog is a fully compatible drop-in replacement for the standard library logger with some awesome features.
 
-Mainly **AwesomeLog** provides functionality to define log levels as well as a **PrettyPrint** function to niceley and readable print out objects. 
-It also shows the filename and line of code on logs  with a level of **DEBUG** or **VERBOSE**
+AwesomeLog let you define log levels for each logged messages as well as a **PrettyPrint** function to print out objects in a pretty readable format.
+It also adds the option to show details of the _caller_ like file path, function name and line number.
 
+AwesomeLog now also provides the functionality to add custom handlers for each LogLevel.
+
+### Documentation
+[Documentation](https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog@v1.0.0-rc#section-documentation)
 
 ### Quick start
-Import the module with the alias `log` as shown in the example below.
+The simplest way to use AwesomeLog is to just replace the standard library log with AwesomeLog:
 
 ```go
 package main
+
 import (
-    log "github.com/chris-dot-exe/AwesomeLog"
+log "github.com/chris-dot-exe/AwesomeLog"
 )
 
 func main() {
-    log.SetLogLevel(log.VERBOSE)
+log.Println("Hello World!")
 }
-``` 
-
-### Functions
-
-The following functions are provided from this package:
-```go
-log.Print()
-log.Println()
-log.Printf()
-log.PrettyPrint()
 ```
-String functions:
-```go
-log.Sprint()
-log.Sprintln()
-log.Sprintf()
-log.SprettyPrint()
-```
+Output:
+`2022/02/14 09:32:44 [INFO] Hello World!`
 
-Functions without additional functionality. Panic and Fatal directly calls the original log functions:
-```go
-log.Fatal()
-log.Fatalf()
-log.Fatalln()
-log.Panic()
-log.Panicf()
-log.Panicln()
-```
-
-And AwesomeLog setting functions:
-```go
-log.SetLogLevel()
-log.SetLogLEvelByString()
-log.SetDefaultLevel()
-log.ShowColorsInLogs()
-log.ShowCaller()
-log.ShowColors()
-log.ShowTimestamps()
-
-log.DefaultLevelConfig()
-log.SetLevelConfig()
-```
-
-### Setup Functions:
-#### `log.SetLogLevel(logLevel)`
-`log.SetLogLevel()` defines to which level messages should be logged. 
-
-#### `log.SetLogLevelByString(string)`
-`log.SetLogLevelByString()` same as `SetLogLevel()` but you can pass the log level as a string to the function (e.g. from a configuration file)
-
-**Default is `log.VERBOSE` / `VERBOSE`** 
-
-
-See examples below.
-
-#### `log.SetDefaultLevel(logLevel)`
-`log.SetDefaultLevel()` defines the default log level if a print function is called without a log level as first argument. 
-
-**Default: log.INFO**
-
-#### `log.ShowColorsInLogs(bool)`
-`log.ShowColorsInLogs()` defines if the colored log-level labels should be shown in logs which are redirected to a file. 
-If this is set to false and the outout is visible in the terminal AND is saved to a log file (e.g. docker logs) it will be shown with colors on the terminal output but without in the docker log.  
-
-**Default: false**
-
-This function is not fully tested. 
-
-#### `log.ShowCaller(bool)`
-`log.ShowCaller()` defines if the caller (function name) should be shown on all log levels.
-
-**Default: false** (Shows the caller only on log level DEBUG and VERBOSE)
-
-#### `log.ShowTimestamps(bool)`
-`log.ShowTimestamps()` defines if timestamps should be shown.
-
-**Default: true** 
-
-#### `log.ShowColors(bool)`
-`log.ShowColors()` defines if labels should be colored.
-
-**Default: true**
-
-#### `log.DefaultLevelConfig()`
-`log.DefaultLevelConfig()` returns the default config for all levels. 
-
-
-#### `log.SetLevelConfig()`
-`log.SetLevelConfig()` set custom config for log levels. Example below.
 
 ## Examples
 ```go
@@ -236,9 +161,6 @@ The output is reduced to the following messages:
 
 <img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/80649104-b1f85180-8a71-11ea-9c72-d98ed825a6b4.png" width="500px">
 
-## Notes
-PrettyPrint can only display fields which are exported!
-
 ### Config Example
 
 ```go
@@ -250,38 +172,71 @@ import (
 func main() {
 	cfg := log.DefaultLevelConfig()
 
-	cfg.Debug = LevelConfig{
-		ShowLineNumber:   false,
-		ShowFunctionName: true,
-		ShowFilePath:     false,
-	}
+    cfg.Debug.ShowLineNumber = false
+    cfg.Debug.ShowFunctionName = true
+    cfg.Debug.ShowFilePath = false
 
 	log.SetLevelConfig(cfg)
 }
 ```
 
-## Default Config
+### Custom Handler
+It is possible to add custom handler for each LogLevel.<br>
+The example below shows how a custom handler for GlitchTip/Sentry can be defined: 
 ```go
-Config{
-		Verbose: LevelConfig{
-			ShowLineNumber:   true,
-			ShowFunctionName: true,
-			ShowFilePath:     true,
-		},
-		Debug: LevelConfig{
-			ShowLineNumber:   true,
-			ShowFunctionName: true,
-			ShowFilePath:     true,
-		},
-		Warn: LevelConfig{
-			ShowLineNumber:   false,
-			ShowFunctionName: false,
-			ShowFilePath:     false,
-		},
-		Info: LevelConfig{
-			ShowLineNumber:   false,
-			ShowFunctionName: false,
-			ShowFilePath:     false,
-		},
-	}
+package main
+
+import (
+  log "github.com/chris-dot-exe/AwesomeLog"
+  "github.com/getsentry/sentry-go"
+  "time"
+)
+
+func main() {
+  // Setup GlitchTip
+  sentry.Init(sentry.ClientOptions{
+    Dsn: "http://0d985cf763a34732a4839eea121c2f25@localhost:8000/1",
+  })
+  defer sentry.Flush(time.Second * 5)
+  // Setup AwesomeLog
+  log.SetDefaultLevel(log.INFO)
+
+  // Get Default Level Config
+  lvlConfig := log.DefaultLevelConfig()
+  // Add custom Handler
+  lvlConfig.Warn.AddHandler(GlitchContextLogger)
+  lvlConfig.Debug.AddHandler(GlitchContextLogger)
+  lvlConfig.Info.AddHandler(GlitchMessage)
+  // Set new Level Config
+  log.SetLevelConfig(lvlConfig)
+
+  logTest()
+}
+
+func GlitchContextLogger(message log.Message) {
+  sentry.ConfigureScope(func(scope *sentry.Scope) {
+    scope.SetContext("caller", message.Caller)
+    scope.SetTag("level", message.Level.String())
+  })
+  sentry.CaptureMessage(message.Message)
+}
+
+func GlitchMessage(message log.Message) {
+  sentry.CaptureMessage(message.Message)
+}
+
+func logTest() {
+  log.Println(log.DEBUG, "some debug message")
+  log.Println(log.INFO, "some info message")
+  log.Println(log.WARN, "something went wrong")
+  log.Println(log.VERBOSE, "verbose message, not sent to GlitchTip")
+}
 ```
+In GlitchTip:
+
+<a href="https://user-images.githubusercontent.com/49272981/154164691-e95b7005-71b8-4b1d-8e8e-b172be3f5de7.png">
+<img alt="GlitchTip Details" src="https://user-images.githubusercontent.com/49272981/154164691-e95b7005-71b8-4b1d-8e8e-b172be3f5de7.png" width="500px">
+</a>
+<a href="https://user-images.githubusercontent.com/49272981/154164688-0f21ce4a-1140-47cc-abf1-39903688a782.png">
+<img alt="GlitchTip Details" src="https://user-images.githubusercontent.com/49272981/154164688-0f21ce4a-1140-47cc-abf1-39903688a782.png" width="500px">
+</a>

@@ -48,6 +48,8 @@ func TestLogLevel(t *testing.T) {
 func TestSetLogLevel(t *testing.T) {
 	SetLogLevel(DEBUG)
 	ShowTimestamp(false)
+	ShowColors(true)
+	ShowColorsInLogs(true)
 	SetLevelConfig(DefaultLevelConfig())
 
 	expexted := ANSI_RED_BACKGROUND + ANSI_WHITE + "[DEBUG]" + ANSI_RESET +
@@ -74,6 +76,7 @@ func TestSetLogLevel(t *testing.T) {
 func TestSetLogLevelByString(t *testing.T) {
 	SetLogLevelByString("DEBUG")
 	ShowTimestamp(false)
+	ShowColorsInLogs(true)
 	SetLevelConfig(DefaultLevelConfig())
 
 	expected := ANSI_RED_BACKGROUND + ANSI_WHITE + "[DEBUG]" + ANSI_RESET +
@@ -101,6 +104,7 @@ func TestSetLogLevelByString(t *testing.T) {
 }
 
 func TestPrettyPrint(t *testing.T) {
+	ShowColorsInLogs(true)
 	SetLogLevel(INFO)
 	demo := foo{
 		Foo: "Test",
@@ -140,6 +144,7 @@ func TestPrettyPrint(t *testing.T) {
 func TestShowColorsInLogsActive(t *testing.T) {
 	SetLogLevel(DEBUG)
 	ShowColors(true)
+	ShowColorsInLogs(true)
 	ShowTimestamp(false)
 	ShowCaller(false)
 	expected := ANSI_RED_BACKGROUND + ANSI_WHITE + "[DEBUG]" + ANSI_RESET + " test\n"
