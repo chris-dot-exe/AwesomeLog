@@ -22,7 +22,7 @@ func SetLogLevel(lvl LogLevel) {
 	logLevel = lvl
 }
 
-//ShowCaller defines if the caller (function name, line number, file path) should be shown on a global level.
+// ShowCaller defines if the caller (function name, line number, file path) should be shown on a global level.
 func ShowCaller(show bool) {
 	if config == nil {
 		config = DefaultLevelConfig()
@@ -270,6 +270,10 @@ func buildMessage(level LogLevel, params ...interface{}) Message {
 func logHandler(level LogLevel, params ...interface{}) {
 	if !showMe(level) {
 		return
+	}
+
+	if config == nil {
+		config = DefaultLevelConfig()
 	}
 
 	lvlName := strings.Title(strings.ToLower(level.String()))
