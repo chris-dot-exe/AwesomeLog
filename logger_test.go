@@ -35,12 +35,17 @@ func TestLogLevel(t *testing.T) {
 
 	for name, lvl := range level {
 		SetLogLevel(lvl)
+		ShowColors(true)
+		ShowColorsInLogs(true)
+
 		fmt.Println("Level set to ", name)
 		msg := "Test Message"
 		Println(VERBOSE, msg)
 		Println(DEBUG, msg)
 		Println(INFO, msg)
 		Println(WARN, msg)
+		Println(ERROR, msg)
+		Println(CRITICAL, msg)
 		Println(NONE, msg)
 		fmt.Println("----------------------")
 	}

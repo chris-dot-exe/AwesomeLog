@@ -124,17 +124,21 @@ func main() {
     log.Println(log.DEBUG, "Foobar Debug")
     log.Println(log.INFO, "Foobar Info")
     log.Println(log.WARN, "Foobar Warning")
+    log.Println(log.ERROR, "Foobar Error")
+    log.Println(log.CRITICAL, "Foobar PANIC MODE! aka critical")
 }
 ```
 Output:
 
-<img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/80649108-b290e800-8a71-11ea-8463-595e9de9f171.png" width="500px">
+<img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/247899663-c83072a5-e6d8-420c-8dda-2c3b9dca6916.png" width="650px">
 
 ### Show only messages to a specific level:
 The priority of the log levels is as following (highest to lowest):
 
 ```
 NONE
+CRITICAL
+ERROR
 WARN
 INFO
 DEBUG
@@ -155,11 +159,13 @@ func main() {
     log.Println(log.DEBUG, "Foobar Debug")
     log.Println(log.INFO, "Foobar Info")
     log.Println(log.WARN, "Foobar Warning")
+    log.Println(log.ERROR, "Foobar Error")
+    log.Println(log.CRITICAL, "Foobar Critical")
 }
 ```
 The output is reduced to the following messages:
 
-<img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/80649104-b1f85180-8a71-11ea-9c72-d98ed825a6b4.png" width="500px">
+<img alt="cmdline output" src="https://user-images.githubusercontent.com/49272981/247900382-9f02cf3a-51bd-4c75-a82f-bfa25f8ceade.png" width="650px">
 
 ### Config Example
 

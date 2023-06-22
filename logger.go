@@ -13,8 +13,11 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/text/language"
+
 	"github.com/fatih/structs"
 	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/text/cases"
 )
 
 func init() {
@@ -103,16 +106,28 @@ func DefaultLevelConfig() *Config {
 			ShowFilePath:     true,
 			Handlers:         []Handler{log},
 		},
+		Info: LevelConfig{
+			ShowLineNumber:   false,
+			ShowFunctionName: false,
+			ShowFilePath:     false,
+			Handlers:         []Handler{log},
+		},
 		Warn: LevelConfig{
 			ShowLineNumber:   false,
 			ShowFunctionName: false,
 			ShowFilePath:     false,
 			Handlers:         []Handler{log},
 		},
-		Info: LevelConfig{
-			ShowLineNumber:   false,
-			ShowFunctionName: false,
-			ShowFilePath:     false,
+		Error: LevelConfig{
+			ShowLineNumber:   true,
+			ShowFunctionName: true,
+			ShowFilePath:     true,
+			Handlers:         []Handler{log},
+		},
+		Critical: LevelConfig{
+			ShowLineNumber:   true,
+			ShowFunctionName: true,
+			ShowFilePath:     true,
 			Handlers:         []Handler{log},
 		},
 	}
@@ -138,13 +153,13 @@ func Println(params ...interface{}) {
 // Print logs a message at the defined LogLevel
 func Print(params ...interface{}) {
 	level, _, params := getLogLevel(false, params...)
-	logHandler(level, params...)
+	print(level, params...)
 }
 
 // Printf logs a message at the defined LogLevel and formats the message according to a format specifier
 func Printf(paramsOriginal ...interface{}) {
 	level, format, params := getLogLevel(true, paramsOriginal...)
-	logHandler(level, fmt.Sprintf(format, params...))
+	print(level, fmt.Sprintf(format, params...))
 }
 
 // PrettyPrint logs a message at the defined LogLevel formatted as JSON
@@ -184,6 +199,8 @@ func SprettyPrint(params ...interface{}) string {
 	return sprintln(level, string(b))
 }
 
+// region fatal
+
 // Fatal calls log.Fatal of the built-in log package.
 // This function is provided only for drop-in compatibility
 func Fatal(params ...interface{}) {
@@ -202,6 +219,10 @@ func Fatalln(params ...interface{}) {
 	log2.Fatalln(params...)
 }
 
+// endregion fatal
+
+// region panic
+
 // Panic calls log.Panic of the built-in log package.
 // This function is provided only for drop-in compatibility
 func Panic(params ...interface{}) {
@@ -219,6 +240,8 @@ func Panicf(format string, params ...interface{}) {
 func Panicln(params ...interface{}) {
 	log2.Panicln(params...)
 }
+
+// endregion panic
 
 // stringify builds the log message string with colors and caller
 func stringify(message Message) string {
@@ -313,7 +336,10 @@ func logHandler(level LogLevel, params ...interface{}) {
 		config = DefaultLevelConfig()
 	}
 
-	lvlName := strings.Title(strings.ToLower(level.String()))
+	caser := cases.Title(language.AmericanEnglish)
+	caser.String(strings.ToLower(level.String()))
+
+	lvlName := caser.String(strings.ToLower(level.String()))
 	s := structs.New(config)
 	lvlField := s.Field(lvlName)
 	cfg := lvlField.Value().(LevelConfig)
@@ -336,6 +362,10 @@ func log(message Message) {
 
 func println(level LogLevel, params ...interface{}) {
 	params = append(params, "\n")
+	logHandler(level, params...)
+}
+
+func print(level LogLevel, params ...interface{}) {
 	logHandler(level, params...)
 }
 
