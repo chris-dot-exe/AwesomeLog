@@ -1,5 +1,7 @@
 package log
 
+import "time"
+
 type LogLevel uint
 
 // String returns the LogLevel name as string
@@ -24,9 +26,18 @@ type Caller struct {
 	LineNumber   int
 }
 
+func (c Caller) ToMap() map[string]interface{} {
+	return map[string]interface{}{
+		"Path":         c.Path,
+		"FunctionName": c.FunctionName,
+		"LineNumber":   c.LineNumber,
+	}
+}
+
 // Message is the object which is passed to every handler function.
 // Message contains the LogLevel, the Caller object and the message
 type Message struct {
+	Time    time.Time
 	Level   LogLevel
 	Caller  Caller
 	Message string
@@ -55,18 +66,22 @@ func (c *LevelConfig) SetHandlers(handler []Handler) {
 
 // Config represents the config for all LogLevels
 type Config struct {
-	Verbose LevelConfig
-	Debug   LevelConfig
-	Warn    LevelConfig
-	Info    LevelConfig
+	Verbose  LevelConfig
+	Debug    LevelConfig
+	Info     LevelConfig
+	Warn     LevelConfig
+	Error    LevelConfig
+	Critical LevelConfig
 }
 
 const (
-	NONE    LogLevel = 0
-	WARN    LogLevel = 1
-	INFO    LogLevel = 2
-	DEBUG   LogLevel = 10
-	VERBOSE LogLevel = 20
+	NONE     LogLevel = 0
+	CRITICAL LogLevel = 10
+	ERROR    LogLevel = 20
+	WARN     LogLevel = 30
+	INFO     LogLevel = 50
+	DEBUG    LogLevel = 70
+	VERBOSE  LogLevel = 100
 )
 
 var logLevel = VERBOSE
@@ -75,19 +90,25 @@ var colorsInLogs = false
 var showColors = true
 var config *Config
 var showTimestamp = true
+var timeFormat = "2006/01/02 15:04:05"
+var maxDepthOfCallerPath = 0
 
 var level = map[string]LogLevel{
-	"NONE":    NONE,
-	"WARN":    WARN,
-	"INFO":    INFO,
-	"DEBUG":   DEBUG,
-	"VERBOSE": VERBOSE,
+	"NONE":     NONE,
+	"CRITICAL": CRITICAL,
+	"ERROR":    ERROR,
+	"WARN":     WARN,
+	"INFO":     INFO,
+	"DEBUG":    DEBUG,
+	"VERBOSE":  VERBOSE,
 }
 
 var lvlColor = map[LogLevel]string{
-	NONE:    "",
-	WARN:    ANSI_YELLOW_BACKGROUND + ANSI_BLACK,
-	INFO:    ANSI_BLUE_BACKGROUND + ANSI_WHITE,
-	DEBUG:   ANSI_RED_BACKGROUND + ANSI_WHITE,
-	VERBOSE: "",
+	NONE:     "",
+	CRITICAL: ANSI_PURPLE_BACKGROUND + ANSI_WHITE,
+	ERROR:    ANSI_RED_BACKGROUND + ANSI_WHITE,
+	WARN:     ANSI_YELLOW_BACKGROUND + ANSI_BLACK,
+	INFO:     ANSI_BLUE_BACKGROUND + ANSI_WHITE,
+	DEBUG:    ANSI_RED_BACKGROUND + ANSI_WHITE,
+	VERBOSE:  "",
 }

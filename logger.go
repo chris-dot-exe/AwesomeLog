@@ -6,14 +6,23 @@ import (
 	"fmt"
 	log2 "log"
 	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
+	"time"
+
+	"golang.org/x/text/language"
 
 	"github.com/fatih/structs"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
+	"golang.org/x/text/cases"
 )
+
+func init() {
+	config = DefaultLevelConfig()
+}
 
 // SetLogLevel defines to which LogLevel log messages should be shown.
 //
@@ -77,6 +86,11 @@ func ShowTimestamp(show bool) {
 	showTimestamp = show
 }
 
+// SetCallerMaxDepth set the max depth of the callers file path
+func SetCallerMaxDepth(depth int) {
+	maxDepthOfCallerPath = depth
+}
+
 // DefaultLevelConfig return the default level config for AwesomeLog
 func DefaultLevelConfig() *Config {
 	cfg := &Config{
@@ -92,16 +106,28 @@ func DefaultLevelConfig() *Config {
 			ShowFilePath:     true,
 			Handlers:         []Handler{log},
 		},
+		Info: LevelConfig{
+			ShowLineNumber:   false,
+			ShowFunctionName: false,
+			ShowFilePath:     false,
+			Handlers:         []Handler{log},
+		},
 		Warn: LevelConfig{
 			ShowLineNumber:   false,
 			ShowFunctionName: false,
 			ShowFilePath:     false,
 			Handlers:         []Handler{log},
 		},
-		Info: LevelConfig{
-			ShowLineNumber:   false,
-			ShowFunctionName: false,
-			ShowFilePath:     false,
+		Error: LevelConfig{
+			ShowLineNumber:   true,
+			ShowFunctionName: true,
+			ShowFilePath:     true,
+			Handlers:         []Handler{log},
+		},
+		Critical: LevelConfig{
+			ShowLineNumber:   true,
+			ShowFunctionName: true,
+			ShowFilePath:     true,
 			Handlers:         []Handler{log},
 		},
 	}
@@ -113,6 +139,11 @@ func SetLevelConfig(cfg *Config) {
 	config = cfg
 }
 
+// SetTimeFormat set the timeformat for log messages
+func SetTimeFormat(format string) {
+	timeFormat = format
+}
+
 // Println logs a message at the defined LogLevel a newline is appended
 func Println(params ...interface{}) {
 	level, _, params := getLogLevel(false, params...)
@@ -122,13 +153,13 @@ func Println(params ...interface{}) {
 // Print logs a message at the defined LogLevel
 func Print(params ...interface{}) {
 	level, _, params := getLogLevel(false, params...)
-	logHandler(level, params...)
+	print(level, params...)
 }
 
 // Printf logs a message at the defined LogLevel and formats the message according to a format specifier
 func Printf(paramsOriginal ...interface{}) {
 	level, format, params := getLogLevel(true, paramsOriginal...)
-	logHandler(level, fmt.Sprintf(format, params...))
+	print(level, fmt.Sprintf(format, params...))
 }
 
 // PrettyPrint logs a message at the defined LogLevel formatted as JSON
@@ -168,6 +199,8 @@ func SprettyPrint(params ...interface{}) string {
 	return sprintln(level, string(b))
 }
 
+// region fatal
+
 // Fatal calls log.Fatal of the built-in log package.
 // This function is provided only for drop-in compatibility
 func Fatal(params ...interface{}) {
@@ -185,6 +218,10 @@ func Fatalf(format string, params ...interface{}) {
 func Fatalln(params ...interface{}) {
 	log2.Fatalln(params...)
 }
+
+// endregion fatal
+
+// region panic
 
 // Panic calls log.Panic of the built-in log package.
 // This function is provided only for drop-in compatibility
@@ -204,6 +241,8 @@ func Panicln(params ...interface{}) {
 	log2.Panicln(params...)
 }
 
+// endregion panic
+
 // stringify builds the log message string with colors and caller
 func stringify(message Message) string {
 
@@ -221,15 +260,20 @@ func stringify(message Message) string {
 	prefix := ""
 	caller := ""
 
+	if showTimestamp {
+		prefix = fmt.Sprintf("%s ", message.Time.Format(timeFormat))
+	}
+
 	if showColors && (colorsInLogs || isTerminal()) {
-		prefix = fmt.Sprintf(message.Level.Color()+"[%s]"+ANSI_RESET, message.Level.String())
+		prefix += fmt.Sprintf(message.Level.Color()+"[%s]"+ANSI_RESET, message.Level.String())
 	} else {
-		prefix = fmt.Sprintf("[%s]", message.Level.String())
+		prefix += fmt.Sprintf("[%s]", message.Level.String())
 	}
 
 	if cfg.ShowFilePath || cfg.ShowFunctionName || cfg.ShowLineNumber {
 		caller += "["
 		if cfg.ShowFilePath {
+
 			caller += fmt.Sprintf("%s:", message.Caller.Path)
 		}
 		if cfg.ShowFunctionName {
@@ -246,11 +290,26 @@ func stringify(message Message) string {
 
 // buildMessage builds the Message object used by all log handlers
 func buildMessage(level LogLevel, params ...interface{}) Message {
+	now := time.Now()
 	caller := Caller{}
 
 	fpcs := make([]uintptr, 1)
 	n := runtime.Callers(5, fpcs)
 	relpath, name, row, err := getCaller(n, fpcs)
+
+	if maxDepthOfCallerPath > 0 {
+		pathElements := strings.Split(relpath, string(os.PathSeparator))
+		length := len(pathElements)
+
+		start := length - maxDepthOfCallerPath
+		if start < 0 {
+			start = 0
+		} else {
+			relpath = "..." + string(os.PathSeparator)
+		}
+		relpath += path.Join(pathElements[start:length]...)
+	}
+
 	if err == nil {
 		caller.Path = relpath
 		caller.FunctionName = name
@@ -258,6 +317,7 @@ func buildMessage(level LogLevel, params ...interface{}) Message {
 	}
 
 	msg := Message{
+		Time:    now,
 		Level:   level,
 		Caller:  caller,
 		Message: fmt.Sprint(params...),
@@ -276,7 +336,10 @@ func logHandler(level LogLevel, params ...interface{}) {
 		config = DefaultLevelConfig()
 	}
 
-	lvlName := strings.Title(strings.ToLower(level.String()))
+	caser := cases.Title(language.AmericanEnglish)
+	caser.String(strings.ToLower(level.String()))
+
+	lvlName := caser.String(strings.ToLower(level.String()))
 	s := structs.New(config)
 	lvlField := s.Field(lvlName)
 	cfg := lvlField.Value().(LevelConfig)
@@ -294,15 +357,15 @@ func log(message Message) {
 
 	logMessage := stringify(message)
 
-	if !showTimestamp {
-		fmt.Print(logMessage)
-		return
-	}
-	log2.Print(logMessage)
+	fmt.Print(logMessage)
 }
 
 func println(level LogLevel, params ...interface{}) {
 	params = append(params, "\n")
+	logHandler(level, params...)
+}
+
+func print(level LogLevel, params ...interface{}) {
 	logHandler(level, params...)
 }
 
@@ -386,5 +449,5 @@ func getCaller(n int, fpcs []uintptr) (relpath string, name string, row int, err
 }
 
 func isTerminal() bool {
-	return terminal.IsTerminal(int(os.Stdout.Fd()))
+	return term.IsTerminal(int(os.Stdout.Fd()))
 }
