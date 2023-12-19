@@ -16,7 +16,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/fatih/structs"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 	"golang.org/x/text/cases"
 )
 
@@ -449,5 +449,5 @@ func getCaller(n int, fpcs []uintptr) (relpath string, name string, row int, err
 }
 
 func isTerminal() bool {
-	return terminal.IsTerminal(int(os.Stdout.Fd()))
+	return term.IsTerminal(int(os.Stdout.Fd()))
 }
