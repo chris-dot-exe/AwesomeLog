@@ -1,3 +1,4 @@
+//go:generate go run generate.go
 package log
 
 import (
@@ -7,57 +8,62 @@ import (
 	log2 "log"
 	"os"
 	"path"
-	"path/filepath"
-	"reflect"
 	"runtime"
 	"strings"
 	"time"
 
-	"golang.org/x/text/language"
-
-	"github.com/fatih/structs"
-	"golang.org/x/term"
-	"golang.org/x/text/cases"
+	"github.com/mattn/go-isatty"
 )
 
 func init() {
 	config = DefaultLevelConfig()
+	isTerminal = checkIsTerminal()
+	dir, err := os.Getwd()
+	if err != nil {
+		log2.Fatalf("Failed to get current working directory: %v", err)
+	}
+	rootedPath = dir
 }
 
 // SetLogLevel defines to which LogLevel log messages should be shown.
 //
 // Default is VERBOSE
 func SetLogLevel(lvl LogLevel) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	logLevel = lvl
+}
+
+func setCallerForLevel(levelCfg *LevelConfig, show bool) {
+	levelCfg.ShowFunctionName = show
+	levelCfg.ShowFilePath = show
+	levelCfg.ShowLineNumber = show
 }
 
 // ShowCaller defines if the caller (function name, line number, file path) should be shown on a global level.
 func ShowCaller(show bool) {
+	mu.Lock()
+	defer mu.Unlock()
 	if config == nil {
 		config = DefaultLevelConfig()
 	}
-
-	s := structs.New(config)
-
-	for _, value := range s.Fields() {
-
-		sfn := value.Field("ShowFunctionName")
-		sfp := value.Field("ShowFilePath")
-		sln := value.Field("ShowLineNumber")
-		sfn.Set(show)
-		sfp.Set(show)
-		sln.Set(show)
-	}
+	// Nutzt die vom Generator erstellte Funktion
+	applyShowCaller(config, show)
 }
 
 // ShowColors Defines if colored level tags should be shown in the console log.
 func ShowColors(show bool) {
+	mu.Lock()
+	defer mu.Unlock()
 	showColors = show
 }
 
 // SetLogLevelByString defines to which LogLevel log messages should be shown based on the given string e.g. SetLogLevelByString("WARN")
 // This is useful if the LogLevel is defined in a config file.
 func SetLogLevelByString(lvlStr string) {
+	mu.Lock()
+	defer mu.Unlock()
 	lvlStr = strings.ToUpper(lvlStr)
 	val, ok := level[lvlStr]
 	if !ok {
@@ -72,6 +78,8 @@ func SetLogLevelByString(lvlStr string) {
 //
 // Default is INFO
 func SetDefaultLevel(lvl LogLevel) {
+	mu.Lock()
+	defer mu.Unlock()
 	defaultLevel = lvl
 }
 
@@ -88,6 +96,8 @@ func ShowTimestamp(show bool) {
 
 // SetCallerMaxDepth set the max depth of the callers file path
 func SetCallerMaxDepth(depth int) {
+	mu.Lock()
+	defer mu.Unlock()
 	maxDepthOfCallerPath = depth
 }
 
@@ -136,11 +146,21 @@ func DefaultLevelConfig() *Config {
 
 // SetLevelConfig set the config for AwesomeLog
 func SetLevelConfig(cfg *Config) {
+	mu.Lock()
+	defer mu.Unlock()
 	config = cfg
+}
+
+func SetCallerSkip(skip int) {
+	mu.Lock()
+	defer mu.Unlock()
+	callerSkip = skip
 }
 
 // SetTimeFormat set the timeformat for log messages
 func SetTimeFormat(format string) {
+	mu.Lock()
+	defer mu.Unlock()
 	timeFormat = format
 }
 
@@ -160,12 +180,6 @@ func Print(params ...interface{}) {
 func Printf(paramsOriginal ...interface{}) {
 	level, format, params := getLogLevel(true, paramsOriginal...)
 	print(level, fmt.Sprintf(format, params...))
-}
-
-// Printfln logs a message at the defined LogLevel and formats the message according to a format specifier with an linebreak
-func Printfln(paramsOriginal ...interface{}) {
-	level, format, params := getLogLevel(true, paramsOriginal...)
-	println(level, fmt.Sprintf(format, params...))
 }
 
 // PrettyPrint logs a message at the defined LogLevel formatted as JSON
@@ -193,11 +207,6 @@ func Sprint(params ...interface{}) string {
 func Sprintf(paramsOriginal ...interface{}) string {
 	level, format, params := getLogLevel(true, paramsOriginal...)
 	return sprint(level, fmt.Sprintf(format, params...))
-}
-
-func Sprintfln(paramsOriginal ...interface{}) string {
-	level, format, params := getLogLevel(true, paramsOriginal...)
-	return sprintln(level, fmt.Sprintf(format, params...))
 }
 
 func SprettyPrint(params ...interface{}) string {
@@ -261,42 +270,62 @@ func stringify(message Message) string {
 		config = DefaultLevelConfig()
 	}
 
-	lvlName := strings.Title(strings.ToLower(message.Level.String()))
+	cfg := getConfigForLevel(message.Level)
 
-	s := structs.New(config)
-	lvlField := s.Field(lvlName)
+	var sb strings.Builder
+	sb.Grow(80 + len(message.Message))
 
-	cfg := lvlField.Value().(LevelConfig)
-
-	prefix := ""
-	caller := ""
+	//prefix := ""
+	//caller := ""
 
 	if showTimestamp {
-		prefix = fmt.Sprintf("%s ", message.Time.Format(timeFormat))
+		//prefix = fmt.Sprintf("%s ", message.Time.Format(timeFormat))
+		sb.WriteString(message.Time.Format(timeFormat))
+		sb.WriteString(" ")
 	}
 
-	if showColors && (colorsInLogs || isTerminal()) {
-		prefix += fmt.Sprintf(message.Level.Color()+"[%s]"+ANSI_RESET, message.Level.String())
+	if showColors && (colorsInLogs || isTerminal) {
+		//prefix += fmt.Sprintf(message.Level.Color()+"[%s]"+ANSI_RESET, message.Level.String())
+		sb.WriteString(message.Level.Color())
+		sb.WriteString("[")
+		sb.WriteString(message.Level.String())
+		sb.WriteString("]")
+		sb.WriteString(ANSI_RESET)
 	} else {
-		prefix += fmt.Sprintf("[%s]", message.Level.String())
+		//prefix += fmt.Sprintf("[%s]", message.Level.String())
+		sb.WriteString("[")
+		sb.WriteString(message.Level.String())
+		sb.WriteString("]")
 	}
 
 	if cfg.ShowFilePath || cfg.ShowFunctionName || cfg.ShowLineNumber {
-		caller += "["
+		//caller += "["
+		sb.WriteString("[")
 		if cfg.ShowFilePath {
 
-			caller += fmt.Sprintf("%s:", message.Caller.Path)
+			//caller += fmt.Sprintf("%s:", message.Caller.Path)
+			sb.WriteString(message.Caller.Path)
+			sb.WriteString(":")
 		}
 		if cfg.ShowFunctionName {
-			caller += fmt.Sprintf("%s", message.Caller.FunctionName)
+			//caller += fmt.Sprintf("%s", message.Caller.FunctionName)
+			sb.WriteString(message.Caller.FunctionName)
 		}
 		if cfg.ShowLineNumber {
-			caller += fmt.Sprintf(":%d", message.Caller.LineNumber)
+			//caller += fmt.Sprintf(":%d", message.Caller.LineNumber)
+			sb.WriteString(":")
+			sb.WriteString(fmt.Sprint(message.Caller.LineNumber))
 		}
 
-		caller += "]"
+		//caller += "]"
+		sb.WriteString("]")
 	}
-	return fmt.Sprintf("%s%s %s", prefix, caller, message.Message)
+
+	sb.WriteString(" ")
+	sb.WriteString(message.Message)
+
+	//return fmt.Sprintf("%s%s %s", prefix, caller, message.Message)
+	return sb.String()
 }
 
 // buildMessage builds the Message object used by all log handlers
@@ -305,7 +334,7 @@ func buildMessage(level LogLevel, params ...interface{}) Message {
 	caller := Caller{}
 
 	fpcs := make([]uintptr, 1)
-	n := runtime.Callers(5, fpcs)
+	n := runtime.Callers(callerSkip, fpcs)
 	relpath, name, row, err := getCaller(n, fpcs)
 
 	if maxDepthOfCallerPath > 0 {
@@ -347,14 +376,7 @@ func logHandler(level LogLevel, params ...interface{}) {
 		config = DefaultLevelConfig()
 	}
 
-	caser := cases.Title(language.AmericanEnglish)
-	caser.String(strings.ToLower(level.String()))
-
-	lvlName := caser.String(strings.ToLower(level.String()))
-	s := structs.New(config)
-	lvlField := s.Field(lvlName)
-	cfg := lvlField.Value().(LevelConfig)
-
+	cfg := getConfigForLevel(level)
 	message := buildMessage(level, params...)
 
 	for _, handler := range cfg.Handlers {
@@ -394,6 +416,9 @@ func sprintln(level LogLevel, params ...interface{}) string {
 }
 
 func showMe(level LogLevel) bool {
+	mu.RLock()
+	defer mu.RUnlock()
+
 	if logLevel == NONE || level == NONE {
 		return false
 	}
@@ -402,14 +427,16 @@ func showMe(level LogLevel) bool {
 }
 
 func getLogLevel(withFormat bool, values ...interface{}) (logLevel LogLevel, format string, newValues []interface{}) {
+	mu.RLock()
+	defer mu.RUnlock()
+	if len(values) == 0 {
+		values = append(values, "")
+	}
 
-	comp := LogLevel(0)
-	try := values[0]
 	level := defaultLevel
 
-	if reflect.TypeOf(try) == reflect.TypeOf(comp) {
-		val := reflect.ValueOf(try)
-		level = LogLevel(val.Uint())
+	if lvl, ok := values[0].(LogLevel); ok {
+		level = lvl
 		values = values[1:]
 	}
 
@@ -417,9 +444,8 @@ func getLogLevel(withFormat bool, values ...interface{}) (logLevel LogLevel, for
 	if withFormat {
 		try := values[0]
 
-		if reflect.TypeOf(try) == reflect.TypeOf(format) {
-			val := reflect.ValueOf(try)
-			format = val.String()
+		if f, ok := try.(string); ok {
+			format = f
 			values = values[1:]
 		} else {
 			log2.Panicln("please specify a format")
@@ -443,22 +469,48 @@ func getCaller(n int, fpcs []uintptr) (relpath string, name string, row int, err
 
 	// Get Path
 	absPath, row := caller.FileLine(fpcs[0] - 1)
-	dir, err := os.Getwd()
-	if err != nil {
-		log2.Fatal(err)
-	}
-	relpath, err = filepath.Rel(dir, absPath)
-	if err != nil {
-		return "", "", -1, err
+	//relpath, err = filepath.Rel(rootedPath, absPath)
+	//if err != nil {
+	//	return "", "", -1, err
+	//}
+	//
+	//// Get Name of the caller function
+	//na := strings.Split(caller.Name(), ".")
+	//name = na[len(na)-1]
+
+	relpath = absPath
+	if strings.HasPrefix(relpath, rootedPath) {
+		relpath = absPath[len(rootedPath):]
+		if len(relpath) > 0 && (relpath[0] == '/' || relpath[0] == '\\') {
+			relpath = relpath[1:]
+		}
 	}
 
-	// Get Name of the caller function
-	na := strings.Split(caller.Name(), ".")
-	name = na[len(na)-1]
+	if maxDepthOfCallerPath > 0 {
+		slashesFound := 0
+		for i := len(relpath) - 1; i >= 0; i-- {
+			if relpath[i] == '/' || relpath[i] == '\\' {
+				slashesFound++
+			}
+			if slashesFound == maxDepthOfCallerPath {
+				relpath = relpath[i+1:]
+				break
+			}
+		}
+	}
 
-	return
+	fullName := caller.Name()
+	name = fullName
+	if lastSlash := strings.LastIndexByte(fullName, '/'); lastSlash >= 0 {
+		name = fullName[lastSlash+1:]
+	}
+	if lastDot := strings.LastIndexByte(name, '.'); lastDot >= 0 {
+		name = name[lastDot+1:]
+	}
+
+	return relpath, name, row, nil
 }
 
-func isTerminal() bool {
-	return term.IsTerminal(int(os.Stdout.Fd()))
+func checkIsTerminal() bool {
+	return isatty.IsTerminal(os.Stdout.Fd())
 }

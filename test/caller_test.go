@@ -16,3 +16,13 @@ func TestDeepNestedCaller(t *testing.T) {
 
 	caller.Test()
 }
+
+func TestDeepNestedCallerNew(t *testing.T) {
+	log.SetLogLevel(log.DEBUG)
+	log.ShowColors(true)
+	log.ShowColorsInLogs(true)
+	log.ShowTimestamp(true)
+	log.SetCallerMaxDepth(5)
+
+	caller.TestNew()
+}

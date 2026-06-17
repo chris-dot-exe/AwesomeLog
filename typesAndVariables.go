@@ -1,6 +1,9 @@
 package log
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 type LogLevel uint
 
@@ -64,26 +67,6 @@ func (c *LevelConfig) SetHandlers(handler []Handler) {
 	c.Handlers = handler
 }
 
-// Config represents the config for all LogLevels
-type Config struct {
-	Verbose  LevelConfig
-	Debug    LevelConfig
-	Info     LevelConfig
-	Warn     LevelConfig
-	Error    LevelConfig
-	Critical LevelConfig
-}
-
-const (
-	NONE     LogLevel = 0
-	CRITICAL LogLevel = 10
-	ERROR    LogLevel = 20
-	WARN     LogLevel = 30
-	INFO     LogLevel = 50
-	DEBUG    LogLevel = 70
-	VERBOSE  LogLevel = 100
-)
-
 var logLevel = VERBOSE
 var defaultLevel = INFO
 var colorsInLogs = false
@@ -92,23 +75,7 @@ var config *Config
 var showTimestamp = true
 var timeFormat = "2006/01/02 15:04:05"
 var maxDepthOfCallerPath = 0
-
-var level = map[string]LogLevel{
-	"NONE":     NONE,
-	"CRITICAL": CRITICAL,
-	"ERROR":    ERROR,
-	"WARN":     WARN,
-	"INFO":     INFO,
-	"DEBUG":    DEBUG,
-	"VERBOSE":  VERBOSE,
-}
-
-var lvlColor = map[LogLevel]string{
-	NONE:     "",
-	CRITICAL: ANSI_PURPLE_BACKGROUND + ANSI_WHITE,
-	ERROR:    ANSI_RED_BACKGROUND + ANSI_WHITE,
-	WARN:     ANSI_YELLOW_BACKGROUND + ANSI_BLACK,
-	INFO:     ANSI_BLUE_BACKGROUND + ANSI_WHITE,
-	DEBUG:    ANSI_RED_BACKGROUND + ANSI_WHITE,
-	VERBOSE:  "",
-}
+var isTerminal = false
+var callerSkip = 5
+var rootedPath = ""
+var mu = &sync.RWMutex{}
