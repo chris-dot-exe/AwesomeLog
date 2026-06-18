@@ -9,20 +9,32 @@ AwesomeLog
 ## Performance Optimizations
 
 ```
-go test -bench=. -run=^$ -benchmem
 goos: linux
 goarch: amd64
 pkg: github.com/chris-dot-exe/AwesomeLog
 cpu: AMD Ryzen 7 7800X3D 8-Core Processor           
 BenchmarkAwesomeLog_Info-16              1714042               680.8 ns/op           152 B/op          3 allocs/op
 BenchmarkAwesomeLog_Println-16           1606201               740.0 ns/op           184 B/op          4 allocs/op
-BenchmarkStdlibLog_Println-16           14904094                80.34 ns/op           24 B/op          1 allocs/op
+BenchmarkStdlibLog_Println-16           14904094               80.34 ns/op            24 B/op          1 allocs/op
 BenchmarkAwesomeLog_Info_Full-16         1254553               953.1 ns/op           386 B/op          6 allocs/op
 BenchmarkAwesomeLog_Println_Full-16      1000000                1030 ns/op           418 B/op          7 allocs/op
 BenchmarkStdlibLog_Println_Full-16       1965724               612.8 ns/op           256 B/op          3 allocs/op
 PASS
 ok      github.com/chris-dot-exe/AwesomeLog     10.134s
 
+#Before: 
+goos: linux
+goarch: amd64
+pkg: github.com/chris-dot-exe/AwesomeLog
+cpu: AMD Ryzen 7 7800X3D 8-Core Processor           
+BenchmarkAwesomeLog_Info-16               187358              6201 ns/op            1737 B/op         30 allocs/op
+BenchmarkAwesomeLog_Println-16            185704              6252 ns/op            1777 B/op         31 allocs/op
+BenchmarkStdlibLog_Println-16            2258814             529.0 ns/op              24 B/op          1 allocs/op
+BenchmarkAwesomeLog_Info_Full-16          173394              6799 ns/op            2249 B/op         44 allocs/op
+BenchmarkAwesomeLog_Println_Full-16       173806              6854 ns/op            2281 B/op         45 allocs/op
+BenchmarkStdlibLog_Println_Full-16        871966              1214 ns/op             256 B/op          3 allocs/op
+PASS
+ok      github.com/chris-dot-exe/AwesomeLog     7.776s
 ```
 
 AwesomeLog is a fully compatible drop-in replacement for the standard library logger with some awesome features.
