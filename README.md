@@ -6,7 +6,20 @@ AwesomeLog
 [![License](https://img.shields.io/github/license/chris-dot-exe/AwesomeLog)](https://github.com/chris-dot-exe/AwesomeLog/blob/master/LICENSE)
 
 
-## Performance Optimizations
+# AwesomeLog
+AwesomeLog is a lightweight, blazing fast, and thread-safe logger for Go that can be used as a direct drop-in replacement for the standard log package.
+
+With this major performance update, the logger has been optimized from the ground up to maximize speed (near zero-allocations), extensibility, and convenience, while retaining full backward compatibility.
+
+Logging is now up to nine times faster than before and uses up to 10 times fewer allocations.
+
+## ✨ New Features
+* **Extreme Performance:** By eliminating fmt.Sprintf at its core and avoiding expensive reflection (wherever possible), AwesomeLog is now blazing fast.
+* **Code Generation:** All level-specific functions (Error(), Infof(), etc.) are generated and call the internal logging engine directly, removing any dynamic overhead.
+* **Data Masking (LogMasker):** You can easily mask sensitive data (passwords, tokens) in your structs before logging them as JSON, WITHOUT affecting your REST API representations.
+* **Custom Output Streams:** Seamlessly redirect logs to files, network sockets, or buffers. AwesomeLog automatically detects whether the new output supports ANSI colors and adapts accordingly.
+
+## Performance Comparison
 
 ```
 goos: linux
@@ -37,15 +50,63 @@ PASS
 ok      github.com/chris-dot-exe/AwesomeLog     7.776s
 ```
 
-AwesomeLog is a fully compatible drop-in replacement for the standard library logger with some awesome features.
-
-AwesomeLog let you define log levels for each logged messages as well as a **PrettyPrint** function to print out objects in a pretty readable format.
-It also adds the option to show details of the _caller_ like file path, function name and line number.
-
-AwesomeLog now also provides the functionality to add custom handlers for each LogLevel.
 
 ### Documentation
 [Documentation](https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog@v1.0.0-rc#section-documentation)
+
+### Installation
+
+```sh
+go get github.com/chris-dot-exe/AwesomeLog
+```
+
+## 📖 Features & Examples
+1. Convenience Methods
+   Instead of passing the log level as a parameter every time, you can now use dedicated level functions directly:
+
+```go
+package main
+import "github.com/chris-dot-exe/AwesomeLog"
+func main() {
+  log.Info("This is an info message!")
+  log.Warnf("An warning occurred: %s\n", err)
+  log.Errorfln("A error occurred: %s", err)
+  log.Debug("Debugging enabled")
+}
+```
+
+2. Custom Output (SetOutput)
+   Want to write your logs to a file? No problem. AwesomeLog automatically disables ANSI colors if the output is not a terminal.
+
+```go
+file, _ := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+log.SetOutput(file)
+log.Info("This will be written to the file without ANSI colors")
+```
+
+3. Data Masking (LogMasker)
+   If you use log.PrettyPrint() to output objects as JSON, you might want to hide passwords. Simply implement the LogMasker interface!
+
+```go
+type User struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
+}
+// LogValue is called exclusively by AwesomeLog!
+func (u User) LogValue() interface{} {
+    return struct {
+        Username string `json:"username"`
+        Password string `json:"password"`
+    }{
+        Username: u.Username,
+        Password: "***REDACTED***",
+    }
+}
+func main() {
+    u := User{Username: "admin", Password: "supersecret"}
+    log.PrettyPrint(u) // Password will be logged as "***REDACTED***"
+}
+```
 
 ### Quick start
 The simplest way to use AwesomeLog is to just replace the standard library log with AwesomeLog:

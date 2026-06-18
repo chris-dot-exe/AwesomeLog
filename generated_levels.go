@@ -82,6 +82,12 @@ func Criticalf(format string, params ...interface{}) {
 	print(CRITICAL, fmt.Sprintf(format, params...))
 }
 
+// Criticalfln logs a formatted message at the CRITICAL level with an appended newline
+func Criticalfln(format string, params ...interface{}) {
+	params = append(params, "\n")
+	print(CRITICAL, fmt.Sprintf(format, params...))
+}
+
 // Criticalln logs a message at the CRITICAL level with an appended newline
 func Criticalln(params ...interface{}) {
 	println(CRITICAL, params...)
@@ -94,6 +100,12 @@ func Error(params ...interface{}) {
 
 // Errorf logs a formatted message at the ERROR level
 func Errorf(format string, params ...interface{}) {
+	print(ERROR, fmt.Sprintf(format, params...))
+}
+
+// Errorfln logs a formatted message at the ERROR level with an appended newline
+func Errorfln(format string, params ...interface{}) {
+	params = append(params, "\n")
 	print(ERROR, fmt.Sprintf(format, params...))
 }
 
@@ -112,6 +124,12 @@ func Warnf(format string, params ...interface{}) {
 	print(WARN, fmt.Sprintf(format, params...))
 }
 
+// Warnfln logs a formatted message at the WARN level with an appended newline
+func Warnfln(format string, params ...interface{}) {
+	params = append(params, "\n")
+	print(WARN, fmt.Sprintf(format, params...))
+}
+
 // Warnln logs a message at the WARN level with an appended newline
 func Warnln(params ...interface{}) {
 	println(WARN, params...)
@@ -124,6 +142,12 @@ func Info(params ...interface{}) {
 
 // Infof logs a formatted message at the INFO level
 func Infof(format string, params ...interface{}) {
+	print(INFO, fmt.Sprintf(format, params...))
+}
+
+// Infofln logs a formatted message at the INFO level with an appended newline
+func Infofln(format string, params ...interface{}) {
+	params = append(params, "\n")
 	print(INFO, fmt.Sprintf(format, params...))
 }
 
@@ -142,6 +166,12 @@ func Debugf(format string, params ...interface{}) {
 	print(DEBUG, fmt.Sprintf(format, params...))
 }
 
+// Debugfln logs a formatted message at the DEBUG level with an appended newline
+func Debugfln(format string, params ...interface{}) {
+	params = append(params, "\n")
+	print(DEBUG, fmt.Sprintf(format, params...))
+}
+
 // Debugln logs a message at the DEBUG level with an appended newline
 func Debugln(params ...interface{}) {
 	println(DEBUG, params...)
@@ -154,6 +184,12 @@ func Verbose(params ...interface{}) {
 
 // Verbosef logs a formatted message at the VERBOSE level
 func Verbosef(format string, params ...interface{}) {
+	print(VERBOSE, fmt.Sprintf(format, params...))
+}
+
+// Verbosefln logs a formatted message at the VERBOSE level with an appended newline
+func Verbosefln(format string, params ...interface{}) {
+	params = append(params, "\n")
 	print(VERBOSE, fmt.Sprintf(format, params...))
 }
 
