@@ -2,7 +2,8 @@ AwesomeLog
 =========
 [![Go Reference](https://pkg.go.dev/badge/github.com/chris-dot-exe/AwesomeLog.svg)](https://pkg.go.dev/github.com/chris-dot-exe/AwesomeLog)
 ![Last Release Version](https://img.shields.io/github/v/release/chris-dot-exe/AwesomeLog?include_prereleases)
-![Go Version](https://img.shields.io/github/go-mod/go-version/chris-dot-exe/AwesomeLog/master)
+![Go Version](https://img.shields.io/github/go-mod/go-version/chris-dot-exe/AwesomeLog/main)
+![Go Version](https://img.shields.io/github/go-mod/go-version/chris-dot-exe/AwesomeLog/preview)
 [![License](https://img.shields.io/github/license/chris-dot-exe/AwesomeLog)](https://github.com/chris-dot-exe/AwesomeLog/blob/master/LICENSE)
 
 
