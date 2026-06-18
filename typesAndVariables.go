@@ -1,11 +1,19 @@
 package log
 
 import (
+	"io"
 	"sync"
 	"time"
 )
 
 type LogLevel uint
+
+// LogMasker allows objects to return a masked or filtered copy of themselves for logging.
+// The method is named LogValue() to be conceptually close to slog.LogValuer,
+// but it returns interface{} to maintain compatibility with Go versions < 1.21 and encoding/json.
+type LogMasker interface {
+	LogValue() interface{}
+}
 
 // String returns the LogLevel name as string
 func (t *LogLevel) String() string {
@@ -79,3 +87,4 @@ var isTerminal = false
 var callerSkip = 5
 var rootedPath = ""
 var mu = &sync.RWMutex{}
+var out io.Writer = nil

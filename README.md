@@ -5,6 +5,26 @@ AwesomeLog
 ![Go Version](https://img.shields.io/github/go-mod/go-version/chris-dot-exe/AwesomeLog/master)
 [![License](https://img.shields.io/github/license/chris-dot-exe/AwesomeLog)](https://github.com/chris-dot-exe/AwesomeLog/blob/master/LICENSE)
 
+
+## Performance Optimizations
+
+```
+go test -bench=. -run=^$ -benchmem
+goos: linux
+goarch: amd64
+pkg: github.com/chris-dot-exe/AwesomeLog
+cpu: AMD Ryzen 7 7800X3D 8-Core Processor           
+BenchmarkAwesomeLog_Info-16              1714042               680.8 ns/op           152 B/op          3 allocs/op
+BenchmarkAwesomeLog_Println-16           1606201               740.0 ns/op           184 B/op          4 allocs/op
+BenchmarkStdlibLog_Println-16           14904094                80.34 ns/op           24 B/op          1 allocs/op
+BenchmarkAwesomeLog_Info_Full-16         1254553               953.1 ns/op           386 B/op          6 allocs/op
+BenchmarkAwesomeLog_Println_Full-16      1000000                1030 ns/op           418 B/op          7 allocs/op
+BenchmarkStdlibLog_Println_Full-16       1965724               612.8 ns/op           256 B/op          3 allocs/op
+PASS
+ok      github.com/chris-dot-exe/AwesomeLog     10.134s
+
+```
+
 AwesomeLog is a fully compatible drop-in replacement for the standard library logger with some awesome features.
 
 AwesomeLog let you define log levels for each logged messages as well as a **PrettyPrint** function to print out objects in a pretty readable format.

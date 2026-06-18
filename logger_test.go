@@ -1,7 +1,9 @@
 package log
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -61,7 +63,7 @@ func TestSetLogLevel(t *testing.T) {
 	SetLevelConfig(DefaultLevelConfig())
 
 	expexted := ANSI_RED_BACKGROUND + ANSI_WHITE + "[DEBUG]" + ANSI_RESET +
-		"[logger_test.go:logs:21] DEBUG Println\n" +
+		"[logger_test.go:logs:23] DEBUG Println\n" +
 		ANSI_YELLOW_BACKGROUND + ANSI_BLACK + "[WARN]" + ANSI_RESET +
 		" WARN Println\n" +
 		ANSI_BLUE_BACKGROUND + ANSI_WHITE + "[INFO]" + ANSI_RESET +
@@ -88,7 +90,7 @@ func TestSetLogLevelByString(t *testing.T) {
 	SetLevelConfig(DefaultLevelConfig())
 
 	expected := ANSI_RED_BACKGROUND + ANSI_WHITE + "[DEBUG]" + ANSI_RESET +
-		"[logger_test.go:logs:21] DEBUG Println\n" +
+		"[logger_test.go:logs:23] DEBUG Println\n" +
 		ANSI_YELLOW_BACKGROUND + ANSI_BLACK + "[WARN]" + ANSI_RESET +
 		" WARN Println\n" +
 		ANSI_BLUE_BACKGROUND + ANSI_WHITE + "[INFO]" + ANSI_RESET +
@@ -113,6 +115,7 @@ func TestSetLogLevelByString(t *testing.T) {
 
 func TestPrettyPrint(t *testing.T) {
 	ShowColorsInLogs(true)
+	ShowTimestamp(false)
 	SetLogLevel(INFO)
 	demo := foo{
 		Foo: "Test",
@@ -249,4 +252,81 @@ func TestLogWithCustomTimeFormat(t *testing.T) {
 	result := stringify(msg)
 
 	assert.Equal(t, expected, result)
+}
+
+// A user struct that implements LogMasker
+type maskedUser struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func (u maskedUser) LogValue() interface{} {
+	return struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}{
+		Username: u.Username,
+		Password: "***REDACTED***",
+	}
+}
+
+func TestLogMasker(t *testing.T) {
+	ShowColorsInLogs(false)
+	ShowTimestamp(false)
+	ShowCaller(false)
+	SetLogLevel(INFO)
+	u := maskedUser{
+		Username: "admin",
+		Password: "supersecretpassword",
+	}
+
+	expected := "[INFO] [\n" +
+		"  {\n" +
+		"    \"username\": \"admin\",\n" +
+		"    \"password\": \"***REDACTED***\"\n" +
+		"  }\n" +
+		"]\n"
+
+	output := SprettyPrint(INFO, u)
+	if output != expected {
+		t.Errorf("expected %q, got %q", expected, output)
+	}
+}
+
+func TestSetOutput(t *testing.T) {
+	var buf bytes.Buffer
+	SetOutput(&buf)
+	ShowTimestamp(false)
+	ShowCaller(false)
+	ShowColorsInLogs(false)
+
+	Errorln("This goes to buffer")
+	expected := "[ERROR] This goes to buffer\n"
+
+	if buf.String() != expected {
+		t.Errorf("expected %q, got %q", expected, buf.String())
+	}
+
+	// Reset to os.Stdout
+	SetOutput(os.Stdout)
+}
+
+func TestGeneratedMethods(t *testing.T) {
+	var buf bytes.Buffer
+	SetOutput(&buf)
+	ShowTimestamp(false)
+	ShowCaller(false)
+	ShowColorsInLogs(false)
+	SetLogLevel(VERBOSE)
+
+	Verbose("msg")
+	Debugf("msg %d", 1)
+	Infoln("msg")
+
+	expected := "[VERBOSE] msg[DEBUG] msg 1[INFO] msg\n"
+	if buf.String() != expected {
+		t.Errorf("expected %q, got %q", expected, buf.String())
+	}
+
+	SetOutput(os.Stdout)
 }

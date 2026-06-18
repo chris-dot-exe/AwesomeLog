@@ -21,6 +21,7 @@ func ExampleSetLogLevelByString() {
 }
 
 func ExamplePrettyPrint() {
+	ShowTimestamp(false)
 	bar := Foo{
 		Foo: "Test",
 		Bar: "Test",
@@ -31,27 +32,27 @@ func ExamplePrettyPrint() {
 
 	PrettyPrint(INFO, bar)
 	// Output:
-	// 2022/02/15 22:32:38 [INFO] [
-	//  {
-	//    "Foo": "Test",
-	//    "Bar": "Test",
-	//    "Foobar": {
-	//      "Meeps": [
-	//        "Meep",
-	//        "Meep2",
-	//        "Meep2.1"
-	//      ]
-	//    }
-	//  }
-	//]
+	// [INFO] [
+	//   {
+	//     "Foo": "Test",
+	//     "Bar": "Test",
+	//     "Foobar": {
+	//       "Meeps": [
+	//         "Meep",
+	//         "Meep2",
+	//         "Meep2.1"
+	//       ]
+	//     }
+	//   }
+	// ]
 }
 
 func ExamplePrint() {
+	ShowTimestamp(false)
 	Print(INFO, "hello ")
 	Print(INFO, "world!")
 	// Output:
-	// 2022/02/15 22:46:51 [INFO] hello
-	// 2022/02/15 22:46:51 [INFO] world!
+	// [INFO] hello [INFO] world!
 }
 
 func ExamplePrint_withoutTimestamp() {
@@ -63,11 +64,12 @@ func ExamplePrint_withoutTimestamp() {
 }
 
 func ExamplePrintln() {
+	ShowTimestamp(false)
 	Println(INFO, "line 1")
 	Println(INFO, "line 2")
 	// Output:
-	// 2022/02/15 22:46:51 [INFO] line 1
-	// 2022/02/15 22:46:51 [INFO] line 2
+	// [INFO] line 1
+	// [INFO] line 2
 }
 
 func ExamplePrintln_withoutTimestamp() {
@@ -80,14 +82,20 @@ func ExamplePrintln_withoutTimestamp() {
 }
 
 func ExamplePrintf() {
+	ShowTimestamp(false)
+	ShowCaller(false)
 	Printf(DEBUG, "Hello %s!\n", "world")
-	// Output: 2022/02/15 23:18:02 [DEBUG][main.go:main:47] Hello world!
+	// Output:
+	// [DEBUG] Hello world!
 }
 
 func ExampleSetTimeFormat() {
+	ShowTimestamp(true)
+	ShowCaller(false)
 	SetTimeFormat("2006/01/02 15:04:05.000000")
+	// Cannot easily test exact time output, so we mock time or skip output block
+	// We just ensure the function works.
 	Printf(DEBUG, "Hello %s!\n", "world")
-	// Output 2022/02/15 23:18:02.278461 [DEBUG] Hello world!
 }
 
 func ExampleSetLevelConfig() {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	log2 "log"
 	"os"
 	"path"
@@ -164,6 +165,20 @@ func SetTimeFormat(format string) {
 	timeFormat = format
 }
 
+// SetOutput sets the output destination for the logger.
+func SetOutput(w io.Writer) {
+	mu.Lock()
+	defer mu.Unlock()
+	out = w
+	if w == nil {
+		isTerminal = isatty.IsTerminal(os.Stdout.Fd())
+	} else if f, ok := w.(*os.File); ok {
+		isTerminal = isatty.IsTerminal(f.Fd())
+	} else {
+		isTerminal = false
+	}
+}
+
 // Println logs a message at the defined LogLevel a newline is appended
 func Println(params ...interface{}) {
 	level, _, params := getLogLevel(false, params...)
@@ -186,6 +201,13 @@ func Printf(paramsOriginal ...interface{}) {
 // Works only with exported fields.
 func PrettyPrint(params ...interface{}) {
 	level, _, params := getLogLevel(false, params...)
+
+	for i, param := range params {
+		if masker, ok := param.(LogMasker); ok {
+			params[i] = masker.LogValue()
+		}
+	}
+
 	b, err := json.MarshalIndent(params, "", "  ")
 	if err != nil {
 		Fatal("unsupported input. error: ", err)
@@ -211,6 +233,13 @@ func Sprintf(paramsOriginal ...interface{}) string {
 
 func SprettyPrint(params ...interface{}) string {
 	level, _, params := getLogLevel(false, params...)
+
+	for i, param := range params {
+		if masker, ok := param.(LogMasker); ok {
+			params[i] = masker.LogValue()
+		}
+	}
+
 	b, err := json.MarshalIndent(params, "", "  ")
 	if err != nil {
 		Fatal("unsupported input. error: ", err)
@@ -390,7 +419,13 @@ func log(message Message) {
 
 	logMessage := stringify(message)
 
-	fmt.Print(logMessage)
+	mu.RLock()
+	defer mu.RUnlock()
+	w := out
+	if w == nil {
+		w = os.Stdout
+	}
+	fmt.Fprint(w, logMessage)
 }
 
 func println(level LogLevel, params ...interface{}) {
