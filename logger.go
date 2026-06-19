@@ -197,6 +197,12 @@ func Printf(paramsOriginal ...interface{}) {
 	print(level, fmt.Sprintf(format, params...))
 }
 
+// Printfln logs a message at the defined LogLevel and formats the message according to a format specifier a new line is appended
+func Printfln(paramsOriginal ...interface{}) {
+	level, format, params := getLogLevel(true, paramsOriginal...)
+	println(level, fmt.Sprintf(format, params...))
+}
+
 // PrettyPrint logs a message at the defined LogLevel formatted as JSON
 // Works only with exported fields.
 func PrettyPrint(params ...interface{}) {
@@ -229,6 +235,11 @@ func Sprint(params ...interface{}) string {
 func Sprintf(paramsOriginal ...interface{}) string {
 	level, format, params := getLogLevel(true, paramsOriginal...)
 	return sprint(level, fmt.Sprintf(format, params...))
+}
+
+func Sprintfln(paramsOriginal ...interface{}) string {
+	level, format, params := getLogLevel(true, paramsOriginal...)
+	return sprintln(level, fmt.Sprintf(format, params...))
 }
 
 func SprettyPrint(params ...interface{}) string {
