@@ -330,3 +330,22 @@ func TestGeneratedMethods(t *testing.T) {
 
 	SetOutput(os.Stdout)
 }
+
+func TestGeneratedMethodsFLN(t *testing.T) {
+	var buf bytes.Buffer
+	SetOutput(&buf)
+	ShowTimestamp(false)
+	ShowCaller(false)
+	ShowColorsInLogs(false)
+	SetLogLevel(VERBOSE)
+
+	Debugfln("msg %d", 1)
+	Infoln("msg")
+
+	expected := "[DEBUG] msg 1\n[INFO] msg\n"
+	if buf.String() != expected {
+		t.Errorf("expected %q, got %q", expected, buf.String())
+	}
+
+	SetOutput(os.Stdout)
+}

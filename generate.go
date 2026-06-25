@@ -97,8 +97,7 @@ func %[1]sf(format string, params ...interface{}) {
 
 // %[1]sfln logs a formatted message at the %[2]s level with an appended newline
 func %[1]sfln(format string, params ...interface{}) {
-  params = append(params, "\n")
-	print(%[2]s, fmt.Sprintf(format, params...))
+	println(%[2]s, fmt.Sprintf(format, params...))
 }
 
 // %[1]sln logs a message at the %[2]s level with an appended newline
